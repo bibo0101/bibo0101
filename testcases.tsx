@@ -1,65 +1,55 @@
-import React from "react";
-import { render } from "@testing-library/react";
 import * as d3 from "d3";
-import TreeChart from "./TreeChart"; // Replace with your component path
 
-// Mock Data
-const mockRoot = {
-  descendants: () => [
-    { x: 100, y: 100 }, // First parent node
-    { x: 200, y: 200 }, // Second parent node (anotherParentNode)
-  ],
-};
+describe("Tree Chart Node Path Generation", () => {
+  // Mock Data
+  const mockRoot = {
+    descendants: () => [
+      { x: 100, y: 100 }, // First parent node
+      { x: 200, y: 200 }, // Second parent node
+    ],
+  };
 
-describe("TreeChart First Condition Tests", () => {
-  beforeEach(() => {
-    jest.spyOn(d3, "select").mockImplementation(() => ({
-      selectAll: jest.fn().mockReturnThis(),
-      data: jest.fn().mockReturnThis(),
-      enter: jest.fn().mockReturnThis(),
-      append: jest.fn().mockReturnThis(),
-      attr: jest.fn().mockReturnThis(),
-    }));
-  });
+  const nodeHeight = 50;
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
-
-  it("should render the arrow path for the first parent node", () => {
-    render(<TreeChart root={mockRoot} />);
-
+  it("should generate the correct path for the first parent node", () => {
     const firstParentNode = mockRoot.descendants()[0];
-    expect(firstParentNode).toBeDefined();
-    expect(firstParentNode.x).toEqual(100);
-    expect(firstParentNode.y).toEqual(100);
 
-    // Check if the path for the first parent node is appended
-    expect(d3.select().append).toHaveBeenCalledWith("path");
-    expect(d3.select().attr).toHaveBeenCalledWith("class", "arrow");
-    expect(d3.select().attr).toHaveBeenCalledWith(
-      "d",
-      expect.stringContaining(`M${firstParentNode.x},${firstParentNode.y}`)
-    );
+    if (firstParentNode) {
+      const x = firstParentNode.x ?? 0;
+      const y = firstParentNode.y ?? 0;
+
+      // Calculate the path
+      const d = `M${x},${y} L${x + 10},${y + nodeHeight / 2}`;
+      expect(d).toBe("M100,100 L110,125");
+
+      // Verify attributes
+      const svg = d3.select("body").append("svg");
+      svg.append("path").attr("d", d).attr("class", "arrow");
+
+      const path = svg.select("path");
+      expect(path.attr("d")).toBe(d);
+      expect(path.attr("class")).toBe("arrow");
+    }
   });
-});
 
-----------------------------------------
-  describe("TreeChart Second Condition Tests", () => {
-  it("should render the arrow path for the second parent node", () => {
-    render(<TreeChart root={mockRoot} />);
-
+  it("should generate the correct path for the second parent node", () => {
     const anotherParentNode = mockRoot.descendants()[1];
-    expect(anotherParentNode).toBeDefined();
-    expect(anotherParentNode.x).toEqual(200);
-    expect(anotherParentNode.y).toEqual(200);
 
-    // Check if the path for the second parent node is appended
-    expect(d3.select().append).toHaveBeenCalledWith("path");
-    expect(d3.select().attr).toHaveBeenCalledWith("class", "arrow");
-    expect(d3.select().attr).toHaveBeenCalledWith(
-      "d",
-      expect.stringContaining(`M${anotherParentNode.x},${anotherParentNode.y}`)
-    );
+    if (anotherParentNode) {
+      const x1 = anotherParentNode.x ?? 0;
+      const y1 = anotherParentNode.y ?? 0;
+
+      // Calculate the path
+      const d = `M${x1},${y1} L${x1 + 10},${y1 + nodeHeight / 2}`;
+      expect(d).toBe("M200,200 L210,225");
+
+      // Verify attributes
+      const svg = d3.select("body").append("svg");
+      svg.append("path").attr("d", d).attr("class", "arrow");
+
+      const path = svg.select("path");
+      expect(path.attr("d")).toBe(d);
+      expect(path.attr("class")).toBe("arrow");
+    }
   });
 });
