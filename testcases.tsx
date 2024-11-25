@@ -1,3 +1,22 @@
+const zoomBehavior = useRef<any>(null); // Ref to store zoom behavior
+
+  // Zoom In Function
+  const handleZoomIn = () => {
+    const svg = d3.select(svgRef.current);
+    if (zoomBehavior.current) {
+      zoomBehavior.current.scaleBy(svg.transition().duration(300), 1.2); // Scale up by 1.2
+    }
+  };
+
+  // Zoom Out Function
+  const handleZoomOut = () => {
+    const svg = d3.select(svgRef.current);
+    if (zoomBehavior.current) {
+      zoomBehavior.current.scaleBy(svg.transition().duration(300), 0.8); // Scale down by 0.8
+    }
+  };
+
+
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
