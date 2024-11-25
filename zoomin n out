@@ -1,0 +1,89 @@
+import React, { useRef, useEffect } from 'react';
+import * as d3 from 'd3';
+
+const FlowChart: React.FC = () => {
+  const svgRef = useRef<SVGSVGElement | null>(null); // Ref for the SVG element
+  const gRef = useRef<SVGGElement | null>(null); // Ref for the main group
+  const zoomBehavior = useRef<any>(null); // Ref to store zoom behavior
+
+  // Initialize Zoom Behavior
+  const initializeZoomBehavior = () => {
+    const svg = d3.select(svgRef.current);
+    const g = d3.select(gRef.current);
+
+    // Define zoom behavior
+    zoomBehavior.current = d3.zoom()
+      .scaleExtent([0.5, 5]) // Set zoom scale limits
+      .on('zoom', (event) => {
+        g.attr('transform', event.transform.toString()); // Apply zoom to the `<g>` group
+      });
+
+    svg.call(zoomBehavior.current); // Apply zoom behavior to the SVG
+  };
+
+  useEffect(() => {
+    const svg = d3.select(svgRef.current);
+
+    // Clear existing SVG content to prevent duplication
+    svg.selectAll('*').remove();
+
+    // Append a group for the chart content
+    const g = svg.append('g').node() as SVGGElement;
+    gRef.current = g;
+
+    // Example chart rendering logic
+    const data = [
+      { x: 50, y: 50, width: 100, height: 50, color: 'blue' },
+      { x: 200, y: 150, width: 80, height: 40, color: 'green' },
+      { x: 400, y: 100, width: 120, height: 60, color: 'orange' },
+    ];
+
+    const d3Group = d3.select(g);
+
+    d3Group.selectAll('rect')
+      .data(data)
+      .enter()
+      .append('rect')
+      .attr('x', (d) => d.x)
+      .attr('y', (d) => d.y)
+      .attr('width', (d) => d.width)
+      .attr('height', (d) => d.height)
+      .attr('fill', (d) => d.color);
+
+    // Initialize zoom behavior
+    initializeZoomBehavior();
+
+    // Clean up logic
+    return () => {
+      svg.on('.zoom', null); // Remove zoom listeners
+      svg.selectAll('*').remove(); // Clear SVG content
+    };
+  }, []); // Only run once on mount
+
+  // Zoom in and zoom out handlers
+  const handleZoomIn = () => {
+    const svg = d3.select(svgRef.current);
+    if (zoomBehavior.current) {
+      zoomBehavior.current.scaleBy(svg.transition().duration(300), 1.2); // Scale up by 1.2
+    }
+  };
+
+  const handleZoomOut = () => {
+    const svg = d3.select(svgRef.current);
+    if (zoomBehavior.current) {
+      zoomBehavior.current.scaleBy(svg.transition().duration(300), 0.8); // Scale down by 0.8
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={handleZoomIn}>Zoom In</button>
+      <button onClick={handleZoomOut}>Zoom Out</button>
+      <svg ref={svgRef} width="600" height="400" style={{ border: '1px solid black' }}>
+        <g ref={gRef}></g> {/* Reference for the main group */}
+      </svg>
+    </div>
+  );
+};
+
+export default FlowChart;
