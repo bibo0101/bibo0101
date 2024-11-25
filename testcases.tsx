@@ -16,6 +16,19 @@ const zoomBehavior = useRef<any>(null); // Ref to store zoom behavior
     }
   };
 
+zoomBehavior.current = d3.zoom()
+      .scaleExtent([0.5, 5]) // Zoom scale limits
+      .on('zoom', (event) => {
+        svg.select('g') // Target the main group inside your SVG
+          .attr('transform', event.transform.toString());
+      });
+
+    svg.call(zoomBehavior.current);
+
+    return () => {
+      svg.on('.zoom', null); // Remove zoom listener on unmount
+    };
+
 
 import React, { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
