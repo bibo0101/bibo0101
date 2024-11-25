@@ -1,4 +1,34 @@
-import * as d3 from "d3";
+const svg = d3.select(svgRef.current)
+      .attr('width', width)
+      .attr('height', height)
+      .call(zoomBehavior.current); // Apply zoom behavior to the SVG
+
+    const g = svg.append('g'); // Group to apply transformations
+
+    // Zoom behavior
+    zoomBehavior.current = d3.zoom()
+      .scaleExtent([0.5, 2]) // Set zoom scale limits
+      .on('zoom', (event) => {
+        g.attr('transform', event.transform); // Apply zoom transformation
+      });
+
+
+
+const handleZoomIn = () => {
+    d3.select(svgRef.current)
+      .transition()
+      .call(zoomBehavior.current.scaleBy, 1.2); // Zoom in by 20%
+  };
+
+  const handleZoomOut = () => {
+    d3.select(svgRef.current)
+      .transition()
+      .call(zoomBehavior.current.scaleBy, 0.8); // Zoom out by 20%
+  };
+
+<button onClick={handleZoomIn}>Zoom In</button>
+        <button onClick={handleZoomOut}>Zoom Out</button>
+  import * as d3 from "d3";
 
 describe("Tree Chart Node Path Generation", () => {
   // Mock Data
