@@ -1,0 +1,110 @@
+import React, { useEffect, useRef, useState } from 'react';
+import * as d3 from 'd3';
+import { HierarchicalData } from './data';
+
+interface FlowChartProps {
+  data: HierarchicalData[];
+  onNodeClick: (node: HierarchicalData) => void;
+}
+
+const FlowChart: React.FC<FlowChartProps> = ({ data, onNodeClick }) => {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [treeData, setTreeData] = useState(d3.stratify<HierarchicalData>()
+    .id(d => d.id)
+    .parentId(d => d.parentId)(data));
+
+  const handleNodeClick = (node: any) => {
+    if (node.children) {
+      node._children = node.children;
+      node.children = null;
+    } else {
+      node.children = node._children;
+      node._children = null;
+    }
+    setTreeData({...treeData}); // Update state to trigger re-render
+    onNodeClick(node.data);
+  };
+
+  useEffect(() => {
+    if (treeData && svgRef.current) {
+      const svg = d3.select(svgRef.current);
+      svg.selectAll('*').remove(); // Clear previous elements
+
+      const treeLayout = d3.tree<HierarchicalData>().size([1000, 1000]); // Adjust size for more nodes
+      const tree = treeLayout(treeData);
+
+      // Create a hidden SVG text element to calculate text width
+      const calculateTextWidth = (text: string) => {
+        const svgText = svg.append('text')
+          .attr('x', -99999)  // Position off-screen
+          .attr('y', -99999)
+          .text(text);
+        const width = svgText.node()?.getBBox().width || 100;
+        svgText.remove();
+        return width;
+      };
+
+      const node = svg
+        .selectAll('.node')
+        .data(tree.descendants())
+        .enter()
+        .append('g')
+        .attr('class', 'node')
+        .attr('transform', d => `translate(${d.x},${d.y})`)
+        .on('click', function(event, d) { handleNodeClick(d); });
+
+      node.each(function (d: any) {
+        const nodeWidth = calculateTextWidth(d.data.name) + 20; // Add padding for clarity
+        const nodeHeight = 50; // Fixed height for simplicity, adjust as needed
+
+        const nodeGroup = d3.select(this);
+
+        nodeGroup
+          .append('rect')
+          .attr('width', nodeWidth)
+          .attr('height', nodeHeight)
+          .attr('x', -nodeWidth / 2)
+          .attr('y', -nodeHeight / 2)
+          .attr('rx', 10)
+          .attr('ry', 10)
+          .attr('class', () => {
+            const colors = ['primary', 'success', 'danger', 'warning'];
+            return colors[d.depth % colors.length];
+          });
+
+        nodeGroup
+          .append('text')
+          .attr('x', 0)
+          .attr('y', 5)
+          .attr('text-anchor', 'middle')
+          .attr('alignment-baseline', 'middle')
+          .text(d.data.name);
+
+        nodeGroup
+          .append('foreignObject')
+          .attr('width', nodeWidth - 20)
+          .attr('height', nodeHeight - 20)
+          .attr('x', -nodeWidth / 2 + 10)
+          .attr('y', -nodeHeight / 2 + 10)
+          .html(`<div style="display: flex; flex-direction: column; align-items: flex-start; text-align: left;">
+                  ${d.data.name}
+                </div>`);
+      });
+
+      const link = svg
+        .selectAll('.link')
+        .data(tree.links())
+        .enter()
+        .append('line')
+        .attr('class', 'link')
+        .attr('x1', d => d.source.x)
+        .attr('y1', d => d.source.y)
+        .attr('x2', d => d.target.x)
+        .attr('y2', d => d.target.y);
+    }
+  }, [treeData]);
+
+  return <svg ref={svgRef} width="1200" height="1200"></svg>;
+};
+
+export default FlowChart;
