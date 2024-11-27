@@ -108,3 +108,68 @@ const FlowChart: React.FC<FlowChartProps> = ({ data, onNodeClick }) => {
 };
 
 export default FlowChart;
+
+/// another approaches
+1.// Assuming `nodes` is your array of node data
+const nodeCount = nodes.length;
+
+// Calculate dynamic width and height
+const baseWidth = 150; // Default width
+const baseHeight = 50; // Default height
+const maxNodes = 10; // A threshold for max nodes for scaling
+
+// Scale width and height dynamically
+const dynamicWidth = Math.max(50, baseWidth - (nodeCount - 4) * 10); // Reducing size as nodes increase
+const dynamicHeight = Math.max(30, baseHeight - (nodeCount - 4) * 5);
+
+d3.selectAll(".node")
+  .attr("width", dynamicWidth)
+  .attr("height", dynamicHeight);
+
+2. d3.selectAll(".node").each(function (d) {
+  const textLength = d3.select(this).select("text").node().getComputedTextLength();
+
+  // Add padding around the text
+  const padding = 20;
+  const dynamicWidth = textLength + padding;
+
+  // Update the node size
+  d3.select(this)
+    .select("rect")
+    .attr("width", dynamicWidth)
+    .attr("height", 50); // Height can remain constant or adjusted similarly
+});
+
+3. // Get the container's dimensions
+const svgWidth = d3.select("svg").node().getBoundingClientRect().width;
+const svgHeight = d3.select("svg").node().getBoundingClientRect().height;
+
+// Calculate node size relative to the container size
+const dynamicWidth = svgWidth / 10; // Example: Each node is 1/10th of the container width
+const dynamicHeight = svgHeight / 20; // Example: Each node is 1/20th of the container height
+
+d3.selectAll(".node rect")
+  .attr("width", dynamicWidth)
+  .attr("height", dynamicHeight);
+
+4. d3.selectAll(".node").each(function (d, i) {
+  const textLength = d3.select(this).select("text").node().getComputedTextLength();
+  const nodeCount = nodes.length;
+
+  const svgWidth = d3.select("svg").node().getBoundingClientRect().width;
+  const baseWidth = svgWidth / 10;
+
+  const dynamicWidth = Math.max(textLength + 20, baseWidth - (nodeCount - 4) * 10);
+
+  d3.select(this)
+    .select("rect")
+    .attr("width", dynamicWidth)
+    .attr("height", 50);
+});
+
+//////////////////////// example of resize listner
+window.addEventListener("resize", () => {
+  // Recalculate and update node sizes
+  updateNodeSizes();
+});
+
