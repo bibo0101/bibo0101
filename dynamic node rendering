@@ -231,6 +231,21 @@ svg.selectAll('line')
   .attr('y1', (d) => d.source.y)
   .attr('x2', (d) => d.target.x)
   .attr('y2', (d) => d.target.y);
+----------------------------------------------------------
+.attr('x', (d) => {
+    const midX = (d.source.x + d.target.x) / 2;
+    return midX;
+})
+.attr('y', (d) => {
+    const midY = (d.source.y + d.target.y) / 2;
+    return midY + 10; // Add an offset if needed
+});
+
+scale percent label dynamically
+
+.attr('font-size', (d) => {
+    return 12 - d.depth; // Reduce font size for deeper nodes
+})
 
 
 
