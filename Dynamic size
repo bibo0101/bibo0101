@@ -15,6 +15,18 @@ interface ChartProps {
   nodes: Node[];
   links: Link[];
 }
+const calculateDimensions = (nodeCount: number) => {
+  const baseWidth = 800;  // Minimum width of the chart
+  const baseHeight = 600; // Minimum height of the chart
+  const nodeWidthIncrement = 50; // Additional width per node
+  const nodeHeightIncrement = 30; // Additional height per node
+
+  // Dynamically calculate dimensions based on the number of nodes
+  const width = Math.max(baseWidth, nodeCount * nodeWidthIncrement);
+  const height = Math.max(baseHeight, nodeCount * nodeHeightIncrement);
+
+  return { width, height };
+};
 
 const DynamicGraph: React.FC<ChartProps> = ({ nodes, links }) => {
   const svgRef = useRef<SVGSVGElement | null>(null);
