@@ -247,6 +247,74 @@ scale percent label dynamically
     return 12 - d.depth; // Reduce font size for deeper nodes
 })
 
+===================================================
+using dynamic text,node simulation
+
+
+import * as d3 from 'd3';
+
+// Sample data
+const nodes = [
+  { id: 'A', size: 10 },
+  { id: 'B', size: 20 },
+  // Add more nodes
+];
+
+const links = [
+  { source: 'A', target: 'B' },
+  // Add more links
+];
+
+// Set up the SVG container
+const svg = d3.select('body').append('svg')
+  .attr('width', window.innerWidth)
+  .attr('height', window.innerHeight);
+
+// Scale for node sizes
+const nodeSizeScale = d3.scaleLinear()
+  .domain([0, d3.max(nodes, d => d.size)])
+  .range([5, 20]);
+
+// Force simulation
+const simulation = d3.forceSimulation(nodes)
+  .force('link', d3.forceLink(links).id(d => d.id))
+  .force('charge', d3.forceManyBody())
+  .force('center', d3.forceCenter(window.innerWidth / 2, window.innerHeight / 2));
+
+// Nodes
+const node = svg.selectAll('.node')
+  .data(nodes)
+  .enter().append('circle')
+  .attr('r', d => nodeSizeScale(d.size))
+  .attr('fill', 'blue');
+
+// Links
+const link = svg.selectAll('.link')
+  .data(links)
+  .enter().append('line')
+  .attr('stroke', 'gray');
+
+// Update node positions
+simulation.on('tick', () => {
+  link.attr('x1', d => d.source.x)
+     .attr('y1', d => d.source.y)
+     .attr('x2', d => d.target.x)
+     .attr('y2', d => d.target.y);
+
+  node.attr('cx', d => d.x)
+      .attr('cy', d => d.y);
+});
+
+// Add text labels to nodes
+const nodeLabels = svg.selectAll('.node-label')
+  .data(nodes)
+  .enter().append('text')
+  .text(d => d.id)
+  .attr('x', d => d.x)
+  .attr('y', d => d.y)
+  .attr('text-anchor', 'middle')
+  .attr('font-size', 12)
+  .attr('fill', 'white');
 
 
 
