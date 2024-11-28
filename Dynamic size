@@ -1,0 +1,43 @@
+import React, { useRef, useEffect, useState } from "react";
+import * as d3 from "d3";
+
+interface Node {
+  id: string;
+  parentId: string | null;
+}
+
+interface Link {
+  source: string;
+  target: string;
+}
+
+interface ChartProps {
+  nodes: Node[];
+  links: Link[];
+}
+
+const DynamicGraph: React.FC<ChartProps> = ({ nodes, links }) => {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+
+  useEffect(() => {
+    const nodeCount = nodes.length;
+    const { width, height } = calculateDimensions(nodeCount);
+
+    setDimensions({ width, height });
+
+    const svg = d3.select(svgRef.current)
+      .attr("width", width)
+      .attr("height", height);
+
+    updateSVGDimensions(svg, width, height);
+
+    const simulation = createSimulation(nodes, links, width, height);
+    renderGraph(svg.append("g"), simulation, nodes, links);
+    addZoomAndPan(svg.select("g"));
+  }, [nodes, links]);
+
+  return <svg ref={svgRef}></svg>;
+};
+
+export default DynamicGraph;
