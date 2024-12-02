@@ -1,0 +1,113 @@
+import React, { useRef, useEffect, useState } from 'react';
+import * as d3 from 'd3';
+
+interface HierarchicalData {
+  id: string;
+  parentId?: string;
+}
+
+interface FlowchartProps {
+  data: HierarchicalData[];
+}
+
+const Flowchart: React.FC<FlowchartProps> = ({ data }) => {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  useEffect(() => {
+    const handleResize = () => {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!svgRef.current) return;
+
+    // Calculate depth and maximum nodes per level
+    const calculateDepth = (nodes: HierarchicalData[]) => {
+      let maxDepth = 0;
+      const traverse = (node: d3.HierarchyNode<HierarchicalData>, depth: number) => {
+        if (depth > maxDepth) maxDepth = depth;
+        if (node.children) {
+          node.children.forEach((child) => traverse(child, depth + 1));
+        }
+      };
+      const root = d3.hierarchy(data.find(d => !d.parentId)!);
+      traverse(root, 1);
+      return maxDepth;
+    };
+
+    const calculateMaxNodesPerLevel = (nodes: HierarchicalData[]) => {
+      const levels: number[] = [];
+      nodes.forEach((node) => {
+        const depth = node.parentId ? node.parentId.split('.').length : 0;
+        levels[depth] = (levels[depth] || 0) + 1;
+      });
+      return Math.max(...levels);
+    };
+
+    const treeDepth = calculateDepth(data);
+    const maxNodesPerLevel = calculateMaxNodesPerLevel(data);
+
+    // Calculate dynamic node size
+    const horizontalSpacing = dimensions.width / Math.max(maxNodesPerLevel, 2);
+    const verticalSpacing = dimensions.height / Math.max(treeDepth, 2);
+
+    // Create tree layout
+    const treeLayout = d3
+      .tree<HierarchicalData>()
+      .size([dimensions.width - 400, dimensions.height - 200])
+      .nodeSize([horizontalSpacing, verticalSpacing]);
+
+    const stratifiedData = d3
+      .stratify<HierarchicalData>()
+      .id((d) => d.id)
+      .parentId((d) => d.parentId)(data);
+
+    const treeData = treeLayout(stratifiedData);
+
+    // Render tree
+    const svg = d3.select(svgRef.current);
+    svg.selectAll('*').remove(); // Clear previous elements
+
+    // Draw links
+    svg
+      .selectAll('.link')
+      .data(treeData.links())
+      .join('path')
+      .attr('class', 'link')
+      .attr(
+        'd',
+        d3
+          .linkHorizontal()
+          .x((d) => d.x)
+          .y((d) => d.y)
+      )
+      .attr('fill', 'none')
+      .attr('stroke', '#ccc')
+      .attr('stroke-width', 2);
+
+    // Draw nodes
+    svg
+      .selectAll('.node')
+      .data(treeData.descendants())
+      .join('g')
+      .attr('class', 'node')
+      .attr('transform', (d) => `translate(${d.x},${d.y})`)
+      .append('circle')
+      .attr('r', 10)
+      .attr('fill', 'steelblue');
+  }, [data, dimensions]);
+
+  return <svg ref={svgRef} width={dimensions.width} height={dimensions.height} />;
+};
+
+export default Flowchart;
