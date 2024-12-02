@@ -1,4 +1,5 @@
-
+const horizontalSpacing = Math.max(containerWidth / (root.descendants().length + 1), 100);
+    const verticalSpacing = Math.max(containerHeight / (treeDepth + 1), 150);
 // Function to calculate the depth of the tree
 function calculateDepth(root: HierarchicalData): number {
   let maxDepth = 0;
