@@ -1,0 +1,23 @@
+// Add cross-links
+const crossLinks = data
+  .filter((d) => d.crossLink)
+  .map((d) => ({
+    source: treeData.descendants().find((node) => node.data.id === d.id),
+    target: treeData.descendants().find((node) => node.data.id === d.crossLink)
+  }));
+
+// Draw cross-links
+svg.selectAll(".cross-link")
+  .data(crossLinks)
+  .enter()
+  .append("path")
+  .attr("class", "cross-link")
+  .attr("d", (d: any) =>
+    d3.linkHorizontal()({
+      source: [d.source.y, d.source.x],
+      target: [d.target.y, d.target.x]
+    })
+  )
+  .style("stroke", "red")
+  .style("stroke-dasharray", "4 2")
+  .style("fill", "none");
