@@ -21,3 +21,25 @@ svg.selectAll(".cross-link")
   .style("stroke", "red")
   .style("stroke-dasharray", "4 2")
   .style("fill", "none");
+================================================================ for stratify method
+function elbow(d: any) {
+  return `M${d.source.y},${d.source.x} H${d.target.y} V${d.target.x}`;
+}
+----------------------------------------------------------------Add separate cross link path
+svg.selectAll(".cross-link")
+  .data(flatData.filter((d) => d.crossLink)) // Filter nodes with crossLinks
+  .enter()
+  .append("path")
+  .attr("class", "cross-link")
+  .attr("d", (d) => {
+    const sourceNode = treeData.descendants().find((n) => n.data.id === d.id);
+    const targetNode = treeData.descendants().find((n) => n.data.id === d.crossLink);
+    if (sourceNode && targetNode) {
+      return `M${sourceNode.y},${sourceNode.x} C${(sourceNode.y + targetNode.y) / 2},${sourceNode.x} ${(sourceNode.y + targetNode.y) / 2},${targetNode.x} ${targetNode.y},${targetNode.x}`;
+    }
+    return null;
+  })
+  .style("fill", "none")
+  .style("stroke", "red") // Optional: color cross-links differently
+  .style("stroke-width", 2)
+  .style("stroke-dasharray", "4 2"); // Optional: make dashed
