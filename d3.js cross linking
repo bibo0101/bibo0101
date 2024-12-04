@@ -1,3 +1,27 @@
+
+// Update SVG size dynamically based on node positions
+const updateSvgSize = (nodes: any[]) => {
+  const xExtent = d3.extent(nodes, (d: any) => d.x); // Get min and max x
+  const yExtent = d3.extent(nodes, (d: any) => d.y); // Get min and max y
+  
+  const padding = 50; // Add some extra padding
+  const newWidth = (xExtent[1] - xExtent[0]) + padding * 2;
+  const newHeight = (yExtent[1] - yExtent[0]) + padding * 2;
+
+  d3.select('svg')
+    .attr('width', Math.max(newWidth, window.innerWidth)) // Ensure at least full window size
+    .attr('height', Math.max(newHeight, window.innerHeight));
+};
+
+// Call this after layout
+updateSvgSize(nodes);
+
+
+
+
+
+
+
 // Add cross-links
 const crossLinks = data
   .filter((d) => d.crossLink)
