@@ -1,3 +1,11 @@
+const nodes = root.descendants();
+    const links = root.links();
+
+    const maxNodeX = d3.max(nodes, (node) => node.x) || 0;
+    const minNodeX = d3.min(nodes, (node) => node.x) || 0;
+    const maxNodeY = d3.max(nodes, (node) => node.y) || 0;
+    const minNodeY = d3.min(nodes, (node) => node.y) || 0;
+
 // Calculate viewBox to avoid cutting nodes
     const padding = 100; // Add padding around the chart
     const viewBoxWidth = maxNodeX - minNodeX + padding * 2;
