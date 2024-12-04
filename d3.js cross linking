@@ -1,3 +1,5 @@
+
+.attr("viewBox", `${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`)
 const nodes = root.descendants();
     const links = root.links();
 
