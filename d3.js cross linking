@@ -1,3 +1,23 @@
+=======================================
+import * as d3 from 'd3';
+import { HierarchicalData } from '../types/interface';
+
+export const calculateLayout = (data: HierarchicalData[], dimensions: { width: number; height: number }) => {
+  const treeLayout = d3.tree<HierarchicalData>().nodeSize([200, 100]);
+  const root = d3.stratify<HierarchicalData>()
+    .id((d) => d.id)
+    .parentId((d) => d.parentId)(data);
+
+  treeLayout(root);
+
+  return {
+    nodes: root.descendants(),
+    links: root.links(),
+  };
+};
+====================================
+
+
 useEffect(() => {
   if (!data || !svgRef.current) return;
 
