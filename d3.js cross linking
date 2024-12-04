@@ -1,4 +1,22 @@
+// Calculate viewBox to avoid cutting nodes
+    const padding = 100; // Add padding around the chart
+    const viewBoxWidth = maxNodeX - minNodeX + padding * 2;
+    const viewBoxHeight = maxNodeY - minNodeY + padding * 2;
+    const viewBoxX = minNodeX - padding;
+    const viewBoxY = minNodeY - padding;
 
+    const svg = d3.select(svgRef.current);
+
+    // Update the SVG element
+    svg
+      .attr("viewBox", `${viewBoxX} ${viewBoxY} ${viewBoxWidth} ${viewBoxHeight}`)
+      .attr("width", containerWidth)
+      .attr("height", containerHeight);
+
+    const g = svg.append("g");
+
+
+==============
 import React, { useEffect, useRef } from "react";
 import * as d3 from "d3";
 
