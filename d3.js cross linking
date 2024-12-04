@@ -1,3 +1,30 @@
+import * as d3 from 'd3';
+import { HierarchicalData } from '../types/interface';
+
+export const generateTreeLayout = (
+  data: HierarchicalData[],
+  containerWidth: number,
+  containerHeight: number
+) => {
+  // Create a stratified root
+  const root = d3.stratify<HierarchicalData>()
+    .id((d) => d.id)
+    .parentId((d) => d.parentId)(data);
+
+  // Calculate node count and depth
+  const nodeCount = root.descendants().length;
+  const maxDepth = d3.max(root.descendants(), (d) => d.depth) || 0;
+
+  // Calculate spacing dynamically
+  const nodeSpacingX = Math.max(50, containerWidth / nodeCount);
+  const nodeSpacingY = Math.max(70, containerHeight / maxDepth);
+
+  // Apply D3 tree layout
+  const treeLayout = d3.tree<HierarchicalData>().nodeSize([nodeSpacingX, nodeSpacingY]);
+  treeLayout(root);
+
+  return { root, nodeCount, maxDepth, nodeSpacingX, nodeSpacingY };
+};
 =======================================
 import * as d3 from 'd3';
 import { HierarchicalData } from '../types/interface';
