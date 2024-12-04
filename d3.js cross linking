@@ -1,3 +1,74 @@
+useEffect(() => {
+  if (!data || !svgRef.current) return;
+
+  const containerWidth = dimensions.width;
+  const containerHeight = dimensions.height;
+
+  // Create root and layout
+  const root = d3
+    .stratify<HierarchicalData>()
+    .id((d) => d.id)
+    .parentId((d) => d.parentId)(data);
+
+  const treeLayout = d3.tree<HierarchicalData>().nodeSize([200, 100]);
+  treeLayout(root);
+
+  const nodes: HierarchyPointNode<HierarchicalData>[] = root.descendants();
+  const links: HierarchyPointLink<HierarchicalData>[] = root.links();
+
+  // Calculate min and max node positions
+  const maxX = d3.max(nodes, (node) => node.x) || 0;
+  const minX = d3.min(nodes, (node) => node.x) || 0;
+  const maxY = d3.max(nodes, (node) => node.y) || 0;
+  const minY = d3.min(nodes, (node) => node.y) || 0;
+
+  // Padding to prevent cutting off nodes
+  const padding = 100;
+
+  // Dynamic transform values
+  const translateX = Math.abs(minX) + padding; // Shift right so left nodes are visible
+  const translateY = padding;
+
+  // Dynamic viewBox calculation
+  const viewBoxWidth = maxX - minX + padding * 2;
+  const viewBoxHeight = maxY - minY + padding * 2;
+
+  // Select the SVG
+  const svg = d3.select(svgRef.current);
+
+  // Update the SVG with the new viewBox and transform
+  svg
+    .attr("viewBox", `${minX - padding} ${minY - padding} ${viewBoxWidth} ${viewBoxHeight}`)
+    .attr("width", containerWidth)
+    .attr("height", containerHeight);
+
+  const g = svg.append("g").attr("transform", `translate(${translateX},${translateY})`);
+
+  // Draw links
+  g.selectAll(".link")
+    .data(links)
+    .enter()
+    .append("path")
+    .attr("class", "link")
+    .attr(
+      "d",
+      d3
+        .linkHorizontal<HierarchyPointLink<HierarchicalData>, HierarchyPointNode<HierarchicalData>>()
+        .x((d) => d.x)
+        .y((d) => d.y)
+    )
+    .attr("fill", "none")
+    .attr("stroke", "gray");
+
+  // Draw nodes
+  const nodeGroup = g
+    .selectAll(".node")
+    .data(nodes)
+    .enter()
+    .append("g")
+    .attr("class", "node")
+    .attr("transform", (d) => `translate(${d.x},${
+
 ////
 entire code
 import React, { useRef, useEffect, useState } from "react";
