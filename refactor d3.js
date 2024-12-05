@@ -1,3 +1,18 @@
+// src/utils/zoomUtils.ts
+import * as d3 from 'd3';
+
+export const applyZoom = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>) => {
+  const zoom = d3.zoom<SVGSVGElement, unknown>()
+    .scaleExtent([0.5, 5]) // Minimum and maximum zoom levels
+    .on('zoom', (event) => {
+      svg.select('g') // Target the inner group for transformations
+        .attr('transform', event.transform);
+    });
+
+  svg.call(zoom);
+};
+
+-------------------
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { Icon } from '@blueprintjs/core';
