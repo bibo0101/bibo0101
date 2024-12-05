@@ -1,3 +1,44 @@
+import * as d3 from 'd3';
+import { HierarchyPointNode, HierarchyPointLink } from 'd3';
+import { HierarchicalData } from '../../../interfaces/HierarchicalData';
+
+/**
+ * Renders links connecting nodes in a D3 hierarchical tree.
+ *
+ * @param svg - The D3 SVG selection to render the links on.
+ * @param links - Array of hierarchical links.
+ * @param nodeHeight - Height of each node (used for positioning links).
+ */
+export const renderLinks = (
+  svg: d3.Selection<SVGSVGElement | null, unknown, null, undefined>,
+  links: HierarchyPointLink<HierarchicalData>[],
+  nodeHeight: number
+) => {
+  svg.append('g')
+    .selectAll('.link')
+    .data(links)
+    .enter()
+    .append('path')
+    .attr('class', 'link')
+    .attr('d', (d) => {
+      // Adjust path for vertical spacing
+      const sourceX = d.source.x;
+      const sourceY = d.source.y + nodeHeight / 2; // Position at the center of source node
+      const targetX = d.target.x;
+      const targetY = d.target.y - nodeHeight / 2; // Position at the center of target node
+
+      // Use elbow-style path for hierarchical links
+      return `M${sourceX},${sourceY}
+              V${(sourceY + targetY) / 2}
+              H${targetX}
+              V${targetY}`;
+    })
+    .attr('fill', 'none')
+    .attr('stroke', 'gray')
+    .attr('stroke-width', 1);
+};
+
+-------------------------------------------------------main.tsx
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import { Icon } from '@blueprintjs/core';
