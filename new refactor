@@ -5,6 +5,7 @@ import * as d3 from 'd3';
 import { initializeChart } from './initializeChart';
 import { handleResize } from './handleResize';
 import { setupZoom } from './setupZoom';
+import { updateSvgDimensions } from './updateSvgDimensions';
 
 export const FlowChart: React.FC<{ data: any; onNodeClick: (data: any) => void }> = ({ data, onNodeClick }) => {
     const svgRef = useRef<SVGSVGElement | null>(null);
@@ -30,6 +31,7 @@ export const FlowChart: React.FC<{ data: any; onNodeClick: (data: any) => void }
         </div>
     );
 };
+
 ---------------------------------handlerezie.tsx
 export const handleResize = (setDimensions: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>) => {
     setDimensions({ width: window.innerWidth, height: window.innerHeight });
