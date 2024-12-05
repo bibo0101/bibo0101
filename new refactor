@@ -1,0 +1,126 @@
+----------------------------------------------------------------valpreflowchart.tsx
+
+import React, { useEffect, useRef, useState } from 'react';
+import * as d3 from 'd3';
+import { initializeChart } from './initializeChart';
+import { handleResize } from './handleResize';
+import { setupZoom } from './setupZoom';
+
+export const FlowChart: React.FC<{ data: any; onNodeClick: (data: any) => void }> = ({ data, onNodeClick }) => {
+    const svgRef = useRef<SVGSVGElement | null>(null);
+    const [dimensions, setDimensions] = useState({ width: window.innerWidth, height: window.innerHeight });
+
+    useEffect(() => {
+        handleResize(setDimensions);
+        window.addEventListener('resize', () => handleResize(setDimensions));
+        return () => window.removeEventListener('resize', () => handleResize(setDimensions));
+    }, []);
+
+    useEffect(() => {
+        if (!data || !svgRef.current) return;
+        initializeChart(svgRef.current, data, dimensions, onNodeClick);
+        setupZoom(svgRef.current);
+    }, [data, dimensions, onNodeClick]);
+
+    return (
+        <div className="chart-container">
+            <div>
+                <svg ref={svgRef} />
+            </div>
+        </div>
+    );
+};
+---------------------------------handlerezie.tsx
+export const handleResize = (setDimensions: React.Dispatch<React.SetStateAction<{ width: number; height: number }>>) => {
+    setDimensions({ width: window.innerWidth, height: window.innerHeight });
+};
+-----------------------------------------------------------------setupzoom.tsx
+import * as d3 from 'd3';
+
+export const setupZoom = (svg: SVGSVGElement) => {
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+        .scaleExtent([0.5, 5]) // min and max zoom
+        .on('zoom', (event) => {
+            d3.select(svg).select("g").attr("transform", event.transform);
+        });
+
+    d3.select(svg).call(zoom);
+};
+------------------------------------------------------------setupzoom.tsx
+import * as d3 from 'd3';
+
+export const setupZoom = (svg: SVGSVGElement) => {
+    const zoom = d3.zoom<SVGSVGElement, unknown>()
+        .scaleExtent([0.5, 5]) // min and max zoom
+        .on('zoom', (event) => {
+            d3.select(svg).select("g").attr("transform", event.transform);
+        });
+
+    d3.select(svg).call(zoom);
+};
+------------------------------------------------------initializingChat.tsx
+import * as d3 from 'd3';
+
+export const initializeChart = (
+    svgElement: SVGSVGElement,
+    data: any,
+    dimensions: { width: number; height: number },
+    onNodeClick: (data: any) => void
+) => {
+    const { width, height } = dimensions;
+    const svg = d3.select(svgElement)
+        .attr("viewBox", `0 0 ${width} ${height}`)
+        .attr("preserveAspectRatio", "xMidYMid meet");
+
+    const treeLayout = d3.tree<any>().nodeSize([220, 200]);
+    const stratify = d3.stratify<any>()
+        .id((d: any) => d.id)
+        .parentId((d: any) => d.parentId);
+
+    const root = stratify(data);
+    treeLayout(root);
+
+    const nodes = root.descendants();
+    const links = root.links();
+
+    svg.selectAll(".link").remove();
+    svg.selectAll(".node").remove();
+
+    // Links
+    svg.selectAll(".link")
+        .data(links)
+        .enter()
+        .append("path")
+        .attr("class", "link")
+        .attr("d", d3.linkHorizontal()
+            .x(d => d.y)
+            .y(d => d.x))
+        .attr("marker-end", 'url(#arrow-up)')
+        .attr('fill', 'none')
+        .attr('stroke', 'gray')
+        .attr('stroke-width', 1);
+
+    // Nodes
+    const node = svg.selectAll(".node")
+        .data(nodes)
+        .enter()
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", d => `translate(${d.y},${d.x})`);
+
+    node.append("rect")
+        .attr("width", 200)
+        .attr("height", 50)
+        .attr("x", -100)
+        .attr("y", -25)
+        .style("fill", "#69b3a2")
+        .on('click', (event, d) => onNodeClick(d.data));
+
+    node.append("text")
+        .attr("dy", ".35em")
+        .attr("x", 0)
+        .attr("y", 0)
+        .style("text-anchor", "middle")
+        .text(d => d.data.name);
+};
+
