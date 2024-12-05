@@ -1,4 +1,63 @@
 import * as d3 from 'd3';
+
+export const renderNodes = (
+  svg: d3.Selection<SVGGElement, unknown, null, undefined>,
+  root: d3.HierarchyPointNode<any>,
+  nodeHeight: number
+) => {
+  const markerWidth = 12;
+  const markerHeight = 12;
+
+  // Apply zoom behavior
+  const zoom = d3.zoom<SVGSVGElement, unknown>()
+    .scaleExtent([0.5, 5]) // Minimum and maximum zoom levels
+    .on('zoom', (event) => {
+      if (svg.node()) {
+        svg.attr('transform', event.transform);
+      }
+    });
+
+  // Apply zoom to the SVG
+  d3.select(svg.node()?.ownerSVGElement as SVGSVGElement).call(zoom);
+
+  // Render links between nodes
+  svg
+    .selectAll('.link')
+    .data(root.links())
+    .enter()
+    .append('path')
+    .attr('class', 'link')
+    .attr('d', (d: any) => {
+      return `M${d.source.x},${d.source.y + nodeHeight / 2} 
+              V${(d.source.y + d.target.y) / 2} 
+              H${d.target.x} 
+              V${d.target.y - nodeHeight / 2}`;
+    })
+    .attr('marker-end', 'url(#arrow-up)') // Add arrowhead marker
+    .attr('fill', 'none')
+    .attr('stroke', 'gray')
+    .attr('stroke-width', 1);
+
+  // Add the first arrow
+  const firstParentNode = root.descendants()[0];
+  if (firstParentNode) {
+    const x = firstParentNode.x ?? 0;
+    const y = (firstParentNode.y ?? 0) + nodeHeight / 2;
+
+    console.log(`First arrow position: x: ${x}, y: ${y}`);
+
+    svg
+      .append('path')
+      .attr('class', 'arrow')
+      .attr('fill', 'gray')
+      .attr(
+        'd',
+        `M${x},${y + nodeHeight} 
+         L${x + 10},${y + nodeHeight - 11} 
+         L${x - 10},${y + nodeHeight - 11
+
+-------------------------------------------------------
+  import * as d3 from 'd3';
 import { HierarchyPointNode, HierarchyPointLink } from 'd3';
 import { HierarchicalData } from '../../../interfaces/HierarchicalData';
 
