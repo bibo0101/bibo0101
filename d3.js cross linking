@@ -1,3 +1,32 @@
+
+import * as d3 from 'd3';
+
+export const addZoom = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, g: d3.Selection<SVGGElement, unknown, null, undefined>) => {
+  const zoom = d3.zoom<SVGSVGElement, unknown>()
+    .scaleExtent([0.5, 2]) // Define zoom scale limits
+    .on('zoom', (event) => {
+      g.attr('transform', event.transform); // Apply zoom transform
+    });
+
+  svg.call(zoom); // Attach zoom behavior to the SVG element
+};
+
+export const addResize = (
+  svgRef: React.RefObject<SVGSVGElement>,
+  containerWidth: number,
+  containerHeight: number
+) => {
+  if (!svgRef.current) return;
+
+  const svg = d3.select(svgRef.current);
+
+  // Dynamically resize SVG based on container dimensions
+  svg.attr('width', containerWidth).attr('height', containerHeight);
+};
+
+
+
+----------------------------------
 import * as d3 from 'd3';
 import { HierarchicalData } from '../types/interface';
 
