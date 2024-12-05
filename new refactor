@@ -60,6 +60,7 @@ export const setupZoom = (svg: SVGSVGElement) => {
 };
 ------------------------------------------------------initializingChat.tsx
 import * as d3 from 'd3';
+import { updateSvgDimensions } from './updateSvgDimensions';
 
 export const initializeChart = (
     svgElement: SVGSVGElement,
@@ -122,5 +123,70 @@ export const initializeChart = (
         .attr("y", 0)
         .style("text-anchor", "middle")
         .text(d => d.data.name);
-};
 
+    // Update SVG dimensions and positions
+    updateSvgDimensions(svg, nodes, width, height);
+};
+------------------------------------------------------------------------updateSvgDimension
+import * as d3 from 'd3';
+
+export const updateSvgDimensions = (
+    svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>,
+    nodes: d3.HierarchyPointNode<any>[],
+    containerWidth: number,
+    containerHeight: number
+) => {
+    // Calculate min and max node positions
+    const maxX = d3.max(nodes, (node) => node.x) || 0;
+    const minX = d3.min(nodes, (node) => node.x) || 0;
+    const maxY = d3.max(nodes, (node) => node.y) || 0;
+    const minY = d3.min(nodes, (node) => node.y) || 0;
+
+    // Padding to prevent cutting off nodes
+    const padding = 100;
+
+    // Dynamic transform values
+    const translateX = Math.abs(minX) + padding; // Shift right so left nodes are visible
+    const translateY = padding;
+
+    // Dynamic viewBox calculation
+    const viewBoxWidth = maxX - minX + padding * 2;
+    const viewBoxHeight = maxY - minY + padding * 2;
+
+    // Update the SVG with the new viewBox and transform
+    svg.attr("viewBox", `${minX - padding} ${minY - padding} ${viewBoxWidth} ${viewBoxHeight}`)
+        .attr("width", containerWidth)
+        .attr("height", containerHeight)
+        .append("g")
+        .attr("transform", `translate(${translateX},${translateY})`);
+
+    const nodeCount = nodes.length;
+    const maxDepth = d3.max(nodes, (d) => d.depth) || 0;
+
+    const nodeSpacingX = Math.max(50, containerWidth / nodeCount);
+    const nodeSpacingY = Math.max(70, containerHeight / maxDepth);
+
+    const treeLayout = d3.tree<any>().nodeSize([nodeSpacingX, nodeSpacingY]);
+
+    treeLayout(d3.hierarchy(d3.stratify().id((d: any) => d.id)(nodes)));
+
+    const baseWidth = 200; // Default width
+    const baseHeight = 100; // Default height
+    const maxNodes = 100; // A threshold for max nodes for scaling
+
+    d3.select(svg.node())
+        .attr('width', containerWidth)
+        .attr('height', containerHeight)
+        .append('g')
+        .attr('transform', 'translate(700,50)');
+
+    svg.append('defs').append('marker')
+        .attr('id', 'arrow-up')
+        .attr('viewBox', '0 -5 10 10')
+        .attr('refX', 9) // arrow position along with line
+        .attr('refY', 0)
+        .attr('markerWidth', 12)
+        .attr('markerHeight', 12)
+        .attr('orient', 'auto-start-reverse')
+        .append('path');
+};
