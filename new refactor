@@ -71,7 +71,7 @@ export const initializeChart = (
     onNodeClick: (data: any) => void
 ) => {
     const { width, height } = dimensions;
-    const svg = d3.select(svgElement)
+    const svg = d3.select<SVGSVGElement, unknown>(svgElement)
         .attr("viewBox", `0 0 ${width} ${height}`)
         .attr("preserveAspectRatio", "xMidYMid meet");
 
@@ -90,12 +90,12 @@ export const initializeChart = (
     svg.selectAll(".node").remove();
 
     // Links
-    svg.selectAll(".link")
+    svg.selectAll<SVGPathElement, d3.HierarchyPointLink<any>>(".link")
         .data(links)
         .enter()
         .append("path")
         .attr("class", "link")
-        .attr("d", d3.linkHorizontal()
+        .attr("d", d3.linkHorizontal<d3.HierarchyPointNode<any>, d3.HierarchyPointLink<any>>()
             .x(d => d.y)
             .y(d => d.x))
         .attr("marker-end", 'url(#arrow-up)')
@@ -104,7 +104,7 @@ export const initializeChart = (
         .attr('stroke-width', 1);
 
     // Nodes
-    const node = svg.selectAll(".node")
+    const node = svg.selectAll<SVGGElement, d3.HierarchyPointNode<any>>(".node")
         .data(nodes)
         .enter()
         .append("g")
@@ -129,6 +129,8 @@ export const initializeChart = (
     // Update SVG dimensions and positions
     updateSvgDimensions(svg, nodes, width, height);
 };
+
+
 ------------------------------------------------------------------------updateSvgDimension
 import * as d3 from 'd3';
 
