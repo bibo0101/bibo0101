@@ -54,7 +54,37 @@ export const renderNodes = (
         'd',
         `M${x},${y + nodeHeight} 
          L${x + 10},${y + nodeHeight - 11} 
-         L${x - 10},${y + nodeHeight - 11
+         L${x - 10},${y + nodeHeight - 11} 
+         Z`
+      );
+  } else {
+    console.error('First parent node not found.');
+  }
+
+  // Add another arrow
+  const anotherParentNode = root.descendants()[1];
+  if (anotherParentNode) {
+    const x1 = anotherParentNode.x ?? 0;
+    const y1 = (anotherParentNode.y ?? 0) + nodeHeight / 2;
+
+    console.log(`Another arrow position: x: ${x1}, y: ${y1}`);
+
+    svg
+      .append('path')
+      .attr('class', 'arrow')
+      .attr('fill', 'gray')
+      .attr(
+        'd',
+        `M${x1},${y1 + nodeHeight} 
+         L${x1 + 10},${y1 + nodeHeight - 11} 
+         L${x1 - 10},${y1 + nodeHeight - 11} 
+         Z`
+      );
+  } else {
+    console.error('Another parent node not found.');
+  }
+};
+
 
 -------------------------------------------------------
   import * as d3 from 'd3';
