@@ -1,4 +1,166 @@
+import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
+import { Icon } from '@blueprintjs/core';
+import { ThemeProvider as BarclaysThemeProvider, Section, SectionItem, Grid } from '@barclays/blueprint-react';
+
+// Define the types for your props
+interface FlowChartProps {
+  data: HierarchicalData[];
+  onNodeClick: (nodeData: HierarchicalData) => void;
+}
+
+export const FlowChart: React.FC<FlowChartProps> = ({ data, onNodeClick }) => {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const [dimensions, setDimensions] = useState({
+    width: window.innerWidth,
+    height: window.innerHeight,
+  });
+
+  // Handle window resize to update chart dimensions dynamically
+  useEffect(() => {
+    const handleResize = () => {
+      setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const markerWidth = 12;
+  const markerHeight = 12;
+
+  // Initialize zoom behavior
+  const zoom = d3.zoom<SVGSVGElement, unknown>()
+    .scaleExtent([0.5, 5]) // Min and max zoom levels
+    .on('zoom', (event) => {
+      if (svgRef.current) {
+        d3.select(svgRef.current).select('g').attr('transform', event.transform);
+      }
+    });
+
+  useEffect(() => {
+    if (!data || !svgRef.current) return;
+
+    const containerWidth = dimensions.width;
+    const containerHeight = dimensions.height;
+
+    // Create tree layout
+    const treeLayout = d3.tree<HierarchicalData>().nodeSize([220, 200]);
+    const root = d3.stratify<HierarchicalData>()
+      .id((d) => d.id)
+      .parentId((d) => d.parentId)(data);
+
+    treeLayout(root);
+    const nodes = root.descendants();
+    const links = root.links();
+
+    // Calculate viewBox for responsive scaling
+    const padding = 100;
+    const [minX, maxX] = d3.extent(nodes, (node) => node.x) as [number, number];
+    const [minY, maxY] = d3.extent(nodes, (node) => node.y) as [number, number];
+
+    const translateX = Math.abs(minX) + padding;
+    const translateY = padding;
+
+    const viewBoxWidth = maxX - minX + 2 * padding;
+    const viewBoxHeight = maxY - minY + 2 * padding;
+
+    const svg = d3.select(svgRef.current)
+      .attr('viewBox', `${-padding} ${-padding} ${viewBoxWidth} ${viewBoxHeight}`)
+      .attr('width', containerWidth)
+      .attr('height', containerHeight);
+
+    // Add markers for links
+    svg.append('defs').append('marker')
+      .attr('id', 'arrow-up')
+      .attr('viewBox', '0 -5 10 10')
+      .attr('refX', 9)
+      .attr('refY', 0)
+      .attr('markerWidth', markerWidth)
+      .attr('markerHeight', markerHeight)
+      .attr('orient', 'auto-start-reverse')
+      .append('path')
+      .attr('d', 'M0,-5L10,0L0,5');
+
+    // Add links
+    const gLinks = svg.append('g').selectAll('.link')
+      .data(links)
+      .enter()
+      .append('path')
+      .attr('class', 'link')
+      .attr('d', (d) => {
+        return `M${d.source.x},${d.source.y + markerHeight / 2}
+                V${(d.source.y + d.target.y) / 2}
+                H${d.target.x}
+                V${d.target.y + markerHeight / 2}`;
+      })
+      .attr('marker-end', 'url(#arrow-up)')
+      .attr('fill', 'none')
+      .attr('stroke', 'gray')
+      .attr('stroke-width', 1);
+
+    // Add nodes
+    const gNodes = svg.append('g').selectAll('.node')
+      .data(nodes)
+      .enter()
+      .append('g')
+      .attr('class', 'node')
+      .attr('transform', (d) => `translate(${d.x},${d.y})`)
+      .on('click', (event, d) => onNodeClick(d.data));
+
+    // Add rectangles for nodes
+    gNodes.append('rect')
+      .attr('width', 200)
+      .attr('height', 100)
+      .attr('rx', 10)
+      .attr('ry', 10)
+      .attr('fill', '#e1e1e1')
+      .attr('stroke', '#515151')
+      .attr('stroke-width', 1);
+
+    // Add text labels for nodes
+    gNodes.append('text')
+      .attr('y', 50) // Vertical centering
+      .attr('text-anchor', 'middle')
+      .attr('alignment-baseline', 'middle')
+      .text((d) => d.data.name);
+  }, [data, dimensions]);
+
+  // Zoom controls
+  const handleZoomIn = () => {
+    if (svgRef.current) {
+      d3.select(svgRef.current).transition().call(zoom.scaleBy, 1.2);
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (svgRef.current) {
+      d3.select(svgRef.current).transition().call(zoom.scaleBy, 0.8);
+    }
+  };
+
+  return (
+    <>
+      <div className="chart-container">
+        <BarclaysThemeProvider>
+          <Section>
+            <SectionItem>
+              <Icon icon="minus" onClick={handleZoomOut} />
+              <Icon icon="plus" onClick={handleZoomIn} />
+              <Grid flex="fit" alignment="middle" justify="center">
+                <svg ref={svgRef}>
+                  <g />
+                </svg>
+              </Grid>
+            </SectionItem>
+          </Section>
+        </BarclaysThemeProvider>
+      </div>
+    </>
+  );
+};
+
+---------------------------------------------------------------
+  import * as d3 from 'd3';
 
 export const renderNodes = (
   svg: d3.Selection<SVGGElement, unknown, null, undefined>,
