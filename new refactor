@@ -1,3 +1,47 @@
+
+
+node.each(function (d) {
+  const nodeElement = d3.select(this);
+  const fontSize = Math.min(12, dynamicHeight / 5); // Scale font size
+  const maxWidth = dynamicWidth - 10; // Adjust based on your node width
+  const text = nodeElement
+    .append('text')
+    .attr('x', 0)
+    .attr('y', -dynamicHeight / 2 + 8)
+    .attr('fill', '#f1f1f1')
+    .attr('text-anchor', 'middle')
+    .attr('font-size', `${fontSize}px`);
+
+  // Wrap text to fit within node width
+  const words = d.data.id.split(' '); // Split text into words
+  let line = '';
+  let lineNumber = 0;
+
+  words.forEach((word, i) => {
+    const testLine = line + (line ? ' ' : '') + word;
+    const testLength = text.node()
+      .getComputedTextLength();
+
+    if (testLength > maxWidth && line) {
+      // If line exceeds max width, create a new tspan
+      text.append('tspan')
+        .attr('x', 0)
+        .attr('dy', `${lineNumber++ * 1.2}em`)
+        .text(line);
+      line = word; // Start new line with the current word
+    } else {
+      line = testLine;
+    }
+  });
+
+  // Append the last line
+  text.append('tspan')
+    .attr('x', 0)
+    .attr('dy', `${lineNumber * 1.2}em`)
+    .text(line);
+});
+
+---------------------------------------------
 import * as d3 from 'd3';
 
 export const initializeChart = (
