@@ -1,4 +1,14 @@
+type Dimensions = { width: number; height: number };
 
+export const handleResize = (setDimensions: React.Dispatch<React.SetStateAction<Dimensions>>) => {
+    const updateDimensions = () => {
+        setDimensions({ width: window.innerWidth, height: window.innerHeight });
+    };
+
+    window.addEventListener('resize', updateDimensions);
+    return () => window.removeEventListener('resize', updateDimensions);
+};
+=================================
 import * as d3 from 'd3';
 
 export const addZoom = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, g: d3.Selection<SVGGElement, unknown, null, undefined>) => {
