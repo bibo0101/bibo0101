@@ -1,3 +1,136 @@
+
+import * as d3 from 'd3';
+
+export const initializeChart = (
+    svgRef: React.RefObject<SVGSVGElement>,
+    data: HierarchicalData,
+    dimensions: { width: number; height: number },
+    onNodeClick: (data: any) => void
+) => {
+    if (!svgRef.current) return;
+
+    // Set up SVG
+    const svg = d3.select(svgRef.current)
+        .attr("viewBox", `0 0 ${dimensions.width} ${dimensions.height}`)
+        .attr("preserveAspectRatio", "xMidYMid meet");
+
+    // Clear existing content inside SVG
+    svg.selectAll("*").remove();
+
+    // Append group for zoom
+    const g = svg.append("g");
+
+    // Initialization code for the chart (nodes, links, etc.)
+    const root = d3.hierarchy<HierarchicalData>(data);
+    const treeLayout = d3.tree<HierarchicalData>().size([dimensions.height, dimensions.width]);
+    treeLayout(root);
+
+    const nodes: d3.HierarchyPointNode<HierarchicalData>[] = root.descendants();
+    const links: d3.HierarchyPointLink<HierarchicalData>[] = root.links();
+
+    g.selectAll<SVGPathElement, d3.HierarchyPointLink<HierarchicalData>>(".link")
+        .data(links)
+        .enter()
+        .append("path")
+        .attr("class", "link")
+        .attr("d", d3.linkHorizontal<d3.HierarchyPointNode<HierarchicalData>, d3.HierarchyPointLink<HierarchicalData>>()
+            .x(d => d.y)
+            .y(d => d.x));
+
+    const node = g.selectAll<SVGGElement, d3.HierarchyPointNode<HierarchicalData>>(".node")
+        .data(nodes)
+        .enter()
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", d => `translate(${d.y},${d.x})`);
+
+    node.append("rect")
+        .attr("width", d => {
+            const dynamicWidth = Math.max(200, d.data.name.length * 10); // Example dynamic width calculation
+            return Math.max(dynamicWidth, 100); // Ensure minimum width is 100
+        })
+        .attr("height", d => {
+            const dynamicHeight = Math.max(50, d.data.name.length * 2); // Example dynamic height calculation
+            return Math.max(dynamicHeight, 70); // Ensure minimum height is 70
+        })
+        .attr("x", d => {
+            const dynamicWidth = Math.max(200, d.data.name.length * 10);
+            return -Math.max(dynamicWidth, 100) / 2; // Center the rect
+        })
+        .attr("y", d => {
+            const dynamicHeight = Math.max(50, d.data.name.length * 2);
+            return -Math.max(dynamicHeight, 70) / 2; // Center the rect
+        })
+        .style("fill", "#69b3a2")
+        .on('click', (event, d) => onNodeClick(d.data));
+
+    node.each(function (d) {
+        const nodeGroup = d3.select(this);
+
+        const text = nodeGroup.append('text')
+            .attr('x', 0)
+            .attr('y', -25 + 8) // here 8 is padding
+            .attr('fill', '#f1f1f1')
+            .attr('dy', '1.2em')
+            .attr('text-anchor', 'start')
+            .on('click', (event, d) => {
+                alert(`Node Id clicked: ${d.data.id}`);
+            });
+
+        // Function to wrap text
+        const wrapText = (text: d3.Selection<SVGTextElement, d3.HierarchyPointNode<HierarchicalData>, SVGGElement, unknown>, width: number) => {
+            text.each(function () {
+                const textElement = d3.select(this),
+                    words = textElement.text().split(/\s+/).reverse(),
+                    lineHeight = 1.1, // ems
+                    y = textElement.attr('y'),
+                    dy = parseFloat(textElement.attr('dy')),
+                    tspan = textElement.text(null).append('tspan').attr('x', 0).attr('y', y).attr('dy', dy + 'em');
+
+                let word,
+                    line: string[] = [],
+                    lineNumber = 0,
+                    tspanElement = tspan.node() as SVGTextElement;
+
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspanElement.textContent = line.join(' ');
+                    if (tspanElement.getComputedTextLength() > width) {
+                        line.pop();
+                        tspanElement.textContent = line.join(' ');
+                        line = [word];
+                        tspan = textElement.append('tspan').attr('x', 0).attr('y', y).attr('dy', ++lineNumber * lineHeight + dy + 'em').text(word);
+                    }
+                }
+            });
+        };
+
+        text.append('tspan')
+            .attr('x', -70)
+            .attr('font-weight', 'bold')
+            .attr('dy', '1.2em')
+            .attr('dx', '1.2em')
+            .attr('font-size', `${12 + (3 * d.depth)}px`)
+            .text(d.data.id);
+
+        text.append('tspan')
+            .attr('x', -70)
+            .attr('dy', '1.2em')
+            .attr('dx', '1.2em')
+            .attr('font-size', `${12 + (3 * d.depth)}px`)
+            .text(d.data.line1)
+            .attr('class', 'text-line');
+
+        // Apply wrapText function to text elements
+        wrapText(text, 180); // Adjust width as per your requirement
+    });
+
+    // Calculate min and max node positions
+    const maxX = d3.max(nodes, (node) => node.x) || 0;
+    const minX = d3.min(nodes, (node) => node.x) || 0;
+    const maxY = d3.max(nodes, (node) => node.y) || 0;
+    const minY = d3.min(nodes, (node) => node.y) || 0;
+};
 =============================================================
 import * as d3 from 'd3';
 
