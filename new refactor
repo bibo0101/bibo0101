@@ -1,3 +1,58 @@
+import * as d3 from 'd3';
+
+export const initializeChart = (
+    svgRef: React.RefObject<SVGSVGElement>,
+    data: any,
+    dimensions: { width: number; height: number },
+    onNodeClick: (data: any) => void
+) => {
+    if (!svgRef.current) return;
+
+    // Set up SVG
+    const svg = d3.select(svgRef.current)
+        .attr("viewBox", `0 0 ${dimensions.width} ${dimensions.height}`)
+        .attr("preserveAspectRatio", "xMidYMid meet");
+
+    // Clear existing content inside SVG
+    svg.selectAll("*").remove();
+
+    // Append group for zoom
+    const g = svg.append("g");
+
+    // Initialization code for the chart (nodes, links, etc.)
+    const root = d3.hierarchy(data);
+    const treeLayout = d3.tree<any>().size([dimensions.height, dimensions.width]);
+    treeLayout(root);
+
+    const nodes = root.descendants();
+    const links = root.links();
+
+    g.selectAll(".link")
+        .data(links)
+        .enter()
+        .append("path")
+        .attr("class", "link")
+        .attr("d", d3.linkHorizontal()
+            .x(d => d.y)
+            .y(d => d.x));
+
+    g.selectAll(".node")
+        .data(nodes)
+        .enter()
+        .append("g")
+        .attr("class", "node")
+        .attr("transform", d => `translate(${d.y},${d.x})`)
+        .append("rect")
+        .attr("width", 200)
+        .attr("height", 50)
+        .attr("x", -100)
+        .attr("y", -25)
+        .on('click', (event, d) => onNodeClick(d.data));
+};
+
+
+
+
 ----------------------------------------------------------------valpreflowchart.tsx
 svg.selectAll<SVGPathElement, d3.HierarchyPointLink<any>>(".link") .data(links) .enter() .append("path") .attr("class", "link") .attr("d", d3.linkHorizontal<d3.HierarchyPointNode<any>, d3.HierarchyPointLink<any>>() .x(d => d.source.y) // Ensure proper type usage .y(d => d.source.x)) // Ensure proper type usage .attr("marker-end", 'url(#arrow-up)') .attr('fill', 'none') .attr('stroke', 'gray') .attr('stroke-width', 1
 import React, { useEffect, useRef, useState } from 'react';
