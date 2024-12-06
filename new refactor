@@ -1,4 +1,59 @@
 import * as d3 from 'd3';
+import * as d3 from 'd3';
+import { wrapText } from './textAlignment';
+
+export const initializeChart = (svg: d3.Selection<SVGSVGElement, unknown, null, undefined>, data: any[]) => {
+  const dynamicHeight = 50; // Example height for dynamic scaling
+  
+  // Create and position nodes
+  const nodes = svg
+    .selectAll('.node')
+    .data(data)
+    .enter()
+    .append('g')
+    .attr('class', 'node')
+    .attr('transform', (d) => `translate(${d.x},${d.y})`);
+  
+  nodes.each(function (d: any) {
+    const nodeElement = d3.select(this);
+
+    // Add ID text and wrap
+    const idText = nodeElement.append('g'); // Create a group for the text
+    wrapText(idText, d.data.id, 100); // Max width set to 100 (adjust as needed)
+
+    // Add line1 text and wrap
+    const line1Text = nodeElement.append('g');
+    wrapText(line1Text, d.data.line1, 100);
+
+    // Add line2 text and wrap
+    const line2Text = nodeElement.append('g');
+    wrapText(line2Text, d.data.line2, 100);
+
+    // Add tooltip for full data
+    nodeElement.append('title').text(d.data.id);
+
+    // Styling and position adjustment for the text group
+    nodeElement.selectAll('text')
+      .attr('x', 0)
+      .attr('y', -dynamicHeight / 2 + 8) // Adjust y position dynamically
+      .attr('text-anchor', 'middle')
+      .attr('fill', '#f1f1f1');
+  });
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * Wrap text within a node.
