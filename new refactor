@@ -1,4 +1,46 @@
+import * as d3 from 'd3';
 
+/**
+ * Wrap text within a node.
+ * @param selection - D3 selection of the text element.
+ * @param text - The text content to wrap.
+ * @param maxWidth - Maximum width of the node to fit the text.
+ */
+export const wrapText = (
+  selection: d3.Selection<SVGGElement | SVGTextElement, any, any, any>,
+  text: string,
+  maxWidth: number
+) => {
+  const words = text.split(' ');
+  let line = '';
+  let lineNumber = 0;
+
+  const textElement = selection.append('text').attr('x', 0).attr('y', 0);
+
+  words.forEach((word, i) => {
+    const testLine = line + (line ? ' ' : '') + word;
+    const testWidth = textElement.text(testLine).node()!.getComputedTextLength();
+
+    if (testWidth > maxWidth && line) {
+      // Add current line as a tspan
+      textElement.append('tspan')
+        .attr('x', 0)
+        .attr('dy', `${lineNumber++ * 1.2}em`)
+        .text(line);
+      line = word; // Start new line
+    } else {
+      line = testLine;
+    }
+  });
+
+  // Add the last line
+  textElement.append('tspan')
+    .attr('x', 0)
+    .attr('dy', `${lineNumber * 1.2}em`)
+    .text(line);
+};
+
+===================================
 
 node.each(function (d) {
   const nodeElement = d3.select(this);
