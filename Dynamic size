@@ -1,3 +1,7 @@
+
+const rectWidth = d3.max(nodes, (node) => node.width) || 100;
+const rectHeight = d3.max(nodes, (node) => node.height) || 50;
+
 import * as d3 from 'd3';
 
 export const initializeChart = (
