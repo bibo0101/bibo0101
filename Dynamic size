@@ -1,4 +1,33 @@
+// Calculate min and max node positions
+const maxX = d3.max(nodes, (node) => node.x) || 0;
+const minX = d3.min(nodes, (node) => node.x) || 0;
 
+// Define the minimum width for nodes
+const minNodeWidth = 100;
+
+// Ensure node width is at least 100px
+if (maxX - minX < minNodeWidth) {
+    const centerX = (maxX + minX) / 2; // Find the center point
+    const adjustment = minNodeWidth / 2; // Half of the minimum width
+
+    // Adjust maxX and minX to meet the minimum width requirement
+    maxX = centerX + adjustment;
+    minX = centerX - adjustment;
+}
+
+// Padding to prevent cutting off nodes
+const padding = 100;
+
+// Calculate viewBox dimensions
+const viewBoxWidth = maxX - minX + padding * 2;
+const viewBoxHeight = maxY - minY + padding * 2;
+
+// Set the SVG attributes
+svg.attr('viewBox', `${minX - padding} ${minY - padding} ${viewBoxWidth} ${viewBoxHeight}`)
+   .attr('width', containerWidth)
+   .attr('height', containerHeight);
+
+===========================================
 const viewBoxWidth = maxx - minx + padding * 2;
 const viewBoxHeight = maxy - miny + padding * 2;
 
