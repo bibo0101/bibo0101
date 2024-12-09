@@ -1,4 +1,46 @@
+const maxx = d3.max(nodes, (node) => node.x) || 0;
+const minx = d3.min(nodes, (node) => node.x) || 0;
+const maxy = d3.max(nodes, (node) => node.y) || 0;
+const miny = d3.min(nodes, (node) => node.y) || 0;
 
+// Dynamic padding
+const padding = Math.max(100, nodes.length * 10); 
+
+// Dynamic viewBox calculation with scaling limit
+const viewBoxWidth = maxx - minx + padding * 2;
+const viewBoxHeight = maxy - miny + padding * 2;
+
+const maxViewBoxSize = 2000;
+if (viewBoxWidth > maxViewBoxSize) {
+    const aspectRatio = viewBoxWidth / viewBoxHeight;
+    viewBoxWidth = maxViewBoxSize;
+    viewBoxHeight = maxViewBoxSize / aspectRatio;
+}
+
+// Set SVG viewBox
+svg.attr('viewBox', `${minx - padding} ${miny - padding} ${viewBoxWidth} ${viewBoxHeight}`)
+   .attr('width', containerWidth)
+   .attr('height', containerHeight);
+
+// Apply scaling to the group containing nodes
+const scaleX = containerWidth / viewBoxWidth;
+const scaleY = containerHeight / viewBoxHeight;
+const scale = Math.min(scaleX, scaleY);
+
+const g = svg.append('g')
+    .attr('transform', `scale(${scale})`);
+
+// Add zoom
+const zoom = d3.zoom()
+    .scaleExtent([0.5, 5]) 
+    .on('zoom', (event) => {
+        g.attr('transform', event.transform);
+    });
+
+svg.call(zoom);
+
+
+----------------------------------------------------------------------------------------------------------
 const rectWidth = d3.max(nodes, (node) => node.width) || 100;
 const rectHeight = d3.max(nodes, (node) => node.height) || 50;
 
