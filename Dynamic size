@@ -1,3 +1,74 @@
+const wrapText = (
+  text: d3.Selection<SVGTextElement, d3.HierarchyPointNode<any>, SVGGElement, unknown>,
+  maxWidth: number,
+  lineHeight: number
+) => {
+  text.each(function () {
+    const textElement = d3.select(this);
+    const words = textElement.text().split(/\s+/).reverse(); // Split words and reverse
+    let word,
+      line: string[] = [],
+      lineNumber = 0;
+
+    // Clear the current text and start adding tspans
+    let tspan = textElement
+      .text(null)
+      .append("tspan")
+      .attr("x", -90) // X position for the text
+      .attr("dy", "0em"); // Start with baseline dy
+
+    while ((word = words.pop())) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node()!.getComputedTextLength() > maxWidth) {
+        // If text exceeds maxWidth, break the line
+        line.pop(); // Remove the last word
+        tspan.text(line.join(" ")); // Update the current line
+        line = [word]; // Start a new line with the word
+        tspan = textElement
+          .append("tspan")
+          .attr("x", -90)
+          .attr("dy", `${lineHeight}em`) // Line height for next line
+          .text(word);
+      }
+    }
+  });
+};
+
+const text = svg
+  .append("text")
+  .attr("x", 0)
+  .attr("y", 0)
+  .attr("font-size", "13px")
+  .attr("font-family", "sans-serif");
+
+// Add dynamic text with padding
+text
+  .append("tspan")
+  .attr("x", -90)
+  .attr("font-weight", "bold")
+  .attr("font-size", "15px")
+  .text((d) => d.data.id);
+
+text
+  .append("tspan")
+  .attr("x", -90)
+  .attr("dy", "1.5em") // Dynamic padding
+  .attr("dx", "1em")
+  .attr("font-size", "13px")
+  .text((d) => d.data.line1)
+  .call(wrapText, 120, 1.2); // Pass maxWidth and lineHeight for wrapping
+
+text
+  .append("tspan")
+  .attr("x", -90)
+  .attr("dy", "1.5em") // Dynamic padding
+  .attr("dx", "1em")
+  .attr("font-size", "13px")
+  .text((d) => d.data.line2)
+  .call(wrapText, 120, 1.2);
+
+==============================================================
 const wrapSingleLineText = (
   text: string, 
   maxWidth: number, 
