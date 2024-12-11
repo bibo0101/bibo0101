@@ -1,3 +1,69 @@
+
+import * as d3 from "d3";
+import React, { useEffect, useRef } from "react";
+
+const ZoomableChartWithScroll = () => {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    const container = d3.select(containerRef.current);
+    const svg = d3.select(svgRef.current);
+    const g = svg.append("g"); // Create a group element for zoomable content
+
+    // Add some sample content (e.g., rectangles and text)
+    g.append("rect")
+      .attr("x", 100)
+      .attr("y", 100)
+      .attr("width", 400)
+      .attr("height", 300)
+      .attr("fill", "steelblue");
+
+    g.append("text")
+      .attr("x", 150)
+      .attr("y", 200)
+      .attr("font-size", "24px")
+      .attr("fill", "white")
+      .text("Zoomable Content");
+
+    // Initialize zoom behavior
+    const zoom = d3.zoom()
+      .scaleExtent([0.5, 5]) // Minimum and maximum zoom levels
+      .on("zoom", (event) => {
+        const { transform } = event;
+        g.attr("transform", transform); // Apply zoom and pan transform
+
+        // Dynamically update container bounds to enable scrolling in both directions
+        const bbox = g.node().getBBox(); // Get bounding box of zoomable content
+        svg.attr("width", Math.max(bbox.width * transform.k, 800)); // Dynamically update width
+        svg.attr("height", Math.max(bbox.height * transform.k, 600)); // Dynamically update height
+      });
+
+    // Attach zoom behavior to SVG
+    svg.call(zoom);
+
+    // Set initial zoom and pan (optional)
+    const initialTransform = d3.zoomIdentity.translate(200, 200).scale(1);
+    svg.call(zoom.transform, initialTransform);
+
+    return () => {
+      svg.selectAll("*").remove(); // Cleanup on unmount
+    };
+  }, []);
+
+  return (
+    <div
+      ref={containerRef}
+      className="container"
+    >
+      <svg ref={svgRef} width={800} height={600} style={{ border: "1px solid black" }} />
+    </div>
+  );
+};
+
+export default ZoomableChartWithScroll;
+
+==================
 const wrapText = (
   text: d3.Selection<SVGTextElement, d3.HierarchyPointNode<any>, SVGGElement, unknown>,
   maxWidth: number,
