@@ -1,3 +1,42 @@
+const wrapSingleLineText = (
+  text: string, 
+  maxWidth: number, 
+  textElement: d3.Selection<SVGTextElement, unknown, HTMLElement, any>
+) => {
+  // Create a temporary element to measure text length
+  const tempText = textElement.append("text").style("visibility", "hidden").text(text);
+  let truncatedText = text;
+
+  // Measure text length and truncate if needed
+  while (tempText.node()!.getComputedTextLength() > maxWidth && truncatedText.length > 0) {
+    truncatedText = truncatedText.slice(0, -1); // Remove last character
+    tempText.text(truncatedText + "…"); // Add ellipsis
+  }
+
+  // Set the visible text
+  textElement.text(truncatedText + "…");
+
+  // Remove the temporary element
+  tempText.remove();
+};
+
+// Example usage:
+const svg = d3.select("svg");
+
+const textElement = svg
+  .append("text")
+  .attr("x", 10)
+  .attr("y", 20)
+  .attr("font-size", "12px");
+
+const fullText = "This is a very long text that needs to fit within a given width.";
+const maxWidth = 80; // Maximum allowed width for the text
+
+wrapSingleLineText(fullText, maxWidth, textElement);
+
+
+
+---------------------------------------------------------------------
 import * as d3 from 'd3';
 
 export const initializeChart = (
