@@ -2,6 +2,50 @@ const wrapText = (
   text: d3.Selection<SVGTextElement, d3.HierarchyPointNode<any>, SVGGElement, unknown>,
   maxWidth: number,
   lineHeight: number
+): void => {
+  text.each(function () {
+    const textElement = d3.select(this);
+    const words = textElement.text().split(/\s+/).reverse();
+    let word: string | undefined,
+      line: string[] = [],
+      lineNumber = 0;
+
+    const y = textElement.attr("y") || "0";
+    const dy = parseFloat(textElement.attr("dy") || "0");
+
+    // Clear any existing text
+    let tspan = textElement
+      .text(null)
+      .append("tspan")
+      .attr("x", 0)
+      .attr("y", y)
+      .attr("dy", `${dy}em`);
+
+    while ((word = words.pop())) {
+      line.push(word);
+      tspan.text(line.join(" "));
+      if (tspan.node()!.getComputedTextLength() > maxWidth) {
+        line.pop();
+        tspan.text(line.join(" "));
+        line = [word];
+        tspan = textElement
+          .append("tspan")
+          .attr("x", 0)
+          .attr("y", y)
+          .attr("dy", `${++lineNumber * lineHeight + dy}em`)
+          .text(word);
+      }
+    }
+  });
+};
+
+========================================================================
+
+
+const wrapText = (
+  text: d3.Selection<SVGTextElement, d3.HierarchyPointNode<any>, SVGGElement, unknown>,
+  maxWidth: number,
+  lineHeight: number
 ) => {
   text.each(function () {
     const textElement = d3.select(this);
