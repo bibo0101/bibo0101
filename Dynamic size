@@ -1,3 +1,137 @@
+import * as d3 from 'd3';
+
+export const initializeChart = (
+    svgRef: React.RefObject<SVGSVGElement>,
+    data: HierarchicalData,
+    dimensions: { width: number; height: number },
+    onNodeClick: (data: any) => void
+) => {
+    if (!svgRef.current) return;
+
+    const containerWidth = dimensions.width;
+    const containerHeight = dimensions.height;
+
+    // Set up tree layout with node size
+    const treeLayout = d3.tree<HierarchicalData>().nodeSize([220, 200]);
+    const root = d3.stratify<HierarchicalData>()
+        .id((d) => d.id)
+        .parentId((d) => d.parentId)(data);
+    treeLayout(root);
+
+    const nodes = root.descendants();
+    const links = root.links();
+    const nodeCount = nodes.length;
+
+    // Calculate dynamic node spacing
+    const nodeSpacingX = Math.max(100, containerWidth / Math.sqrt(nodeCount / (root.height + 1)));
+    const nodeSpacingY = Math.max(80, containerHeight / (root.height + 1));
+
+    // Recalculate tree layout with dynamic spacing
+    treeLayout.nodeSize([nodeSpacingX, nodeSpacingY]);
+    treeLayout(root);
+
+    // Calculate min and max node positions
+    const maxX = d3.max(nodes, (node) => node.x) || 0;
+    const minX = d3.min(nodes, (node) => node.x) || 0;
+    const maxY = d3.max(nodes, (node) => node.y) || 0;
+    const minY = d3.min(nodes, (node) => node.y) || 0;
+
+    // Define padding and calculate dynamic viewBox dimensions
+    const padding = 20;
+    const viewBoxWidth = maxX - minX + 2 * padding;
+    const viewBoxHeight = maxY - minY + 2 * padding;
+
+    // Select the SVG and update with the new viewBox and dimensions
+    const svg = d3.select(svgRef.current)
+        .attr('viewBox', `${minX - padding} ${minY - padding} ${viewBoxWidth} ${viewBoxHeight}`)
+        .style('width', '100%')  // Ensure the SVG scales with the container
+        .style('height', 'auto');  // Automatically set height based on content
+
+    // Clear existing content inside SVG
+    svg.selectAll("*").remove();
+
+    // Append group for zoom and pan
+    const g = svg.append('g')
+        .attr('transform', `translate(${padding}, ${padding})`);
+
+    // Add links
+    g.selectAll('.link')
+        .data(links)
+        .enter()
+        .append('path')
+        .attr('class', 'link')
+        .attr('d', d3.linkHorizontal<d3.HierarchyPointNode<HierarchicalData>, d3.HierarchyPointLink<HierarchicalData>>()
+            .x(d => d.y)
+            .y(d => d.x));
+
+    // Add nodes
+    const node = g.selectAll('.node')
+        .data(nodes)
+        .enter()
+        .append('g')
+        .attr('class', 'node')
+        .attr('transform', d => `translate(${d.y},${d.x})`);
+
+    node.append('rect')
+        .attr('width', 100)  // Minimum width
+        .attr('height', 80)  // Minimum height
+        .attr('x', -50)      // Center the rect horizontally
+        .attr('y', -40)      // Center the rect vertically
+        .style('fill', '#69b3a2')
+        .on('click', (event, d) => onNodeClick(d.data));
+
+    // Add text inside nodes and handle text wrapping
+    node.each(function (d) {
+        const nodeGroup = d3.select(this);
+        const padding = 10;
+
+        const text = nodeGroup.append('text')
+            .attr('x', 0)
+            .attr('y', -30 + padding) // Padding from the top
+            .attr('fill', '#f1f1f1')
+            .attr('dy', '1.2em')
+            .attr('text-anchor', 'middle') // Center text horizontally
+            .on('click', (event, d) => {
+                alert(`Node Id clicked: ${d.data.id}`);
+            });
+
+        const wrapText = (text: d3.Selection<SVGTextElement, d3.HierarchyPointNode<HierarchicalData>, SVGGElement, unknown>, width: number) => {
+            text.each(function () {
+                const textElement = d3.select<SVGTextElement, d3.HierarchyPointNode<HierarchicalData>>(this);
+                const words = textElement.text().split(/\s+/).reverse();
+                const lineHeight = 1.1;
+                const y = textElement.attr('y');
+                const dy = parseFloat(textElement.attr('dy'));
+                let tspan = textElement.text(null).append('tspan').attr('x', 0).attr('y', y).attr('dy', dy + 'em') as d3.Selection<SVGTSpanElement, unknown, HTMLElement, any>;
+
+                let word,
+                    line: string[] = [],
+                    lineNumber = 0;
+
+                while (word = words.pop()) {
+                    line.push(word);
+                    tspan.text(line.join(' '));
+                    if (tspan.node()!.getComputedTextLength() > width) {
+                        line.pop();
+                        tspan.text(line.join(' '));
+                        line = [word];
+                        tspan = textElement.append('tspan').attr('x', 0).attr('y', y).attr('dy', ++lineNumber * lineHeight + dy + 'em').text(word) as d3.Selection<SVGTSpanElement, unknown, HTMLElement, any>;
+                    }
+                }
+            });
+        };
+
+        const textContent = `ID: ${d.data.id} ${d.data.line1}`;
+        const textElement = text.append('tspan').text(textContent) as d3.Selection<SVGTSpanElement, unknown, HTMLElement, any>;
+
+        wrapText(textElement, 80); // Adjust width for text wrapping
+    });
+};
+
+
+///
+
+
 Zoom FIle 
 import { applyZoom } from './valpre-chart'; // Import zoom function
 
