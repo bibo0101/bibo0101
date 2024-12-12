@@ -1,0 +1,13 @@
+export interface HierarchicalData<T = unknown> {
+  id: string;
+  parentId: string | null;
+  label: string;
+  line1: string;
+  line2: string;
+  type: string;
+  formFieldConfig: FieldConfig[]; // Keeps the form field configuration.
+  formData: T; // Generic type to handle dynamic form data.
+  crossLink?: string | null;
+  data: T; // Custom data can go here.
+  nodeType: any; // If needed, can also be generic.
+}
