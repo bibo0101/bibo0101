@@ -1,4 +1,103 @@
+import * as d3 from "d3";
+import React, { useEffect, useRef, useState } from "react";
 
+const ZoomableChart = ({ data, onNodeClick }: FlowChartProps) => {
+  const svgRef = useRef<SVGSVGElement | null>(null);
+  const gRef = useRef<SVGGElement | null>(null); // Group for zoomable content
+  const [dimensions, setDimensions] = useState({ width: 800, height: 600 });
+
+  useEffect(() => {
+    // Handle resizing
+    const handleResize = () => {
+      setDimensions({
+        width: window.innerWidth - 100,
+        height: window.innerHeight - 100,
+      });
+    };
+    window.addEventListener("resize", handleResize);
+    handleResize();
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    if (!svgRef.current || !gRef.current) return;
+
+    const svg = d3.select(svgRef.current);
+    const g = d3.select(gRef.current);
+
+    // Initialize zoom
+    const zoom = d3
+      .zoom<SVGSVGElement, unknown>()
+      .scaleExtent([0.8, 10]) // Define min and max zoom levels
+      .on("zoom", (event) => {
+        g.attr("transform", event.transform); // Apply transform to the group
+      });
+
+    svg.call(zoom); // Attach zoom to the SVG
+
+    // Initial chart rendering
+    initializeChart(g, data, dimensions, onNodeClick);
+
+    return () => {
+      svg.on(".zoom", null); // Clean up zoom events on unmount
+      g.selectAll("*").remove(); // Clean up chart content
+    };
+  }, [data, dimensions, onNodeClick]);
+
+  const handleZoomIn = () => {
+    if (svgRef.current) {
+      d3.select(svgRef.current)
+        .transition()
+        .call(d3.zoom().scaleBy, 1.2); // Scale up by 1.2x
+    }
+  };
+
+  const handleZoomOut = () => {
+    if (svgRef.current) {
+      d3.select(svgRef.current)
+        .transition()
+        .call(d3.zoom().scaleBy, 0.8); // Scale down by 0.8x
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={handleZoomIn}>Zoom In</button>
+      <button onClick={handleZoomOut}>Zoom Out</button>
+      <svg
+        ref={svgRef}
+        width={dimensions.width}
+        height={dimensions.height}
+        style={{ border: "1px solid black" }}
+      >
+        <g ref={gRef} /> {/* Group for zoomable content */}
+      </svg>
+    </div>
+  );
+};
+
+const initializeChart = (
+  g: d3.Selection<SVGGElement, unknown, null, undefined>,
+  data: any,
+  dimensions: { width: number; height: number },
+  onNodeClick: (node: any) => void
+) => {
+  // Sample chart content (e.g., circles)
+  g.selectAll("circle")
+    .data(data)
+    .enter()
+    .append("circle")
+    .attr("cx", (d: any) => d.x)
+    .attr("cy", (d: any) => d.y)
+    .attr("r", 20)
+    .attr("fill", "steelblue")
+    .on("click", onNodeClick);
+};
+
+export default ZoomableChart;
+
+================================================================================
 import * as d3 from "d3";
 import React, { useEffect, useRef } from "react";
 
