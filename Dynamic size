@@ -1,3 +1,40 @@
+Add Paddng// Padding around text
+=====
+
+const textPadding = 10;
+
+node
+  .append("rect")
+  .attr("x", -(dynamicWidth / 2 + textPadding)) // Adjust x to center with padding
+  .attr("y", -(dynamicHeight / 2 + textPadding)) // Adjust y to center with padding
+  .attr("width", dynamicWidth + 2 * textPadding) // Increase width for padding
+  .attr("height", dynamicHeight + 2 * textPadding) // Increase height for padding
+  .attr("rx", 6) // Optional: Rounded corners
+  .attr("class", "node-rect"); // Add a class for styling
+
+// Add text with tspan
+const text = node
+  .append("text")
+  .attr("class", "node-text")
+  .attr("dy", "0.35em") // Center text vertically
+  .style("text-anchor", "middle") // Center text horizontally
+  .style("font-size", "12px") // Adjust font size as needed
+  .text((d: any) => d.data.name);
+
+// Use tspan for multi-line text with padding
+text.each(function (d: any) {
+  const textNode = d3.select(this);
+  const lines = d.data.name.split(" "); // Split text into multiple lines
+  lines.forEach((line, index) => {
+    textNode
+      .append("tspan")
+      .attr("x", 0) // Center horizontally
+      .attr("dy", index === 0 ? "0em" : "1.2em") // Add vertical spacing
+      .text(line);
+  });
+});
+==================================================================================
+=================================================================
 import * as d3 from "d3";
 import React, { useEffect, useRef, useState } from "react";
 
