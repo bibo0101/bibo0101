@@ -1,3 +1,19 @@
+nodes
+  .append('text')
+  .attr('x', -90)
+  .attr('font-weight', 'bold')
+  .attr('font-size', (d) => `${12 + (3 - d.depth)}px`)
+  .text((d) => {
+    // Dynamically map fields and apply custom formatting
+    const fields = config.displayFields.map((field) => d.data[field]).filter(Boolean);
+    return config.formatLabel(fields);
+  })
+  .on('click', (event, d) => {
+    alert(`Node clicked: ${d.data.id}`);
+  });
+
+
+
 const config = {
   displayFields: ['id', 'organization', 'country'], // List of fields to display
   formatLabel: (fields) => fields.join(' | '), // Custom formatter for the labels
