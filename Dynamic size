@@ -1,3 +1,10 @@
+const config = {
+  displayFields: ['id', 'organization', 'country'], // List of fields to display
+  formatLabel: (fields) => fields.join(' | '), // Custom formatter for the labels
+};
+
+
+
 Add Paddng// Padding around text
 =====
 
