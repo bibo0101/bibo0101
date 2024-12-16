@@ -1,3 +1,21 @@
+
+nodes
+  .append('text')
+  .selectAll('tspan')
+  .data((d) =>
+    config.displayFields
+      .map((field) => d.data[field as keyof HierarchicalData])
+      .filter(Boolean)
+  )
+  .enter()
+  .append('tspan')
+  .attr('x', 0)
+  .attr('dy', (d, i) => (i === 0 ? '0' : '1.2em'))
+  .style('font-weight', (d, i) => (i === 0 ? 'bold' : 'normal')) // Bold for the first line
+  .style('fill', (d, i) => (i === 0 ? 'blue' : 'black')) // Blue for the first line
+  .text((fieldValue) => fieldValue);
+=============================
+
 nodes
   .append('text')
   .attr('x', -90)
