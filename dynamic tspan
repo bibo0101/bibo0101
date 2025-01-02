@@ -252,6 +252,51 @@ function createOrgChart({
       onNodeClick(d); // Use reusable onClick
     });
 }
+============================================================================================================================onclick of each line
+nodes
+  .append("text")
+  .attr("text-anchor", "middle")
+  .style("font-size", "12px")
+  .each(function (d) {
+    const textElement = d3.select(this);
+
+    const maxChars = 15; // Max characters per line
+    const wrappedName = wrapText(d.data.name, maxChars);
+    const wrappedDescription = wrapText(d.data.description, maxChars);
+    const wrappedCountry = wrapText(d.data.country, maxChars);
+
+    // Render each line of text for each property
+    let yOffset = -20; // Initial vertical offset
+    [wrappedName, wrappedDescription, wrappedCountry].forEach((lines, index) => {
+      lines.forEach((line, lineIndex) => {
+        textElement
+          .append("tspan")
+          .attr("x", 0) // Center the text horizontally
+          .attr("dy", yOffset) // Adjust dy for line breaks
+          .style("font-weight", index === 0 ? "bold" : "normal") // Style for the first group
+          .style("font-size", index === 0 ? "14px" : index === 1 ? "12px" : "10px") // Adjust font size
+          .text(line)
+          .on("click", (event, d) => {
+            onNodeClick(d, index, line); // Trigger click event for this line
+          });
+
+        yOffset = "1.2em"; // Adjust for next line
+      });
+
+      // Add extra spacing between sections
+      yOffset = "1.5em";
+    });
+  });
+
+// Helper function for handling the click event
+function onNodeClick(d, sectionIndex, clickedLine) {
+  const sectionNames = ["Name", "Description", "Country"];
+  const sectionName = sectionNames[sectionIndex];
+
+  // Show an alert with the section name and clicked line
+  alert(`You clicked on ${sectionName}: ${clickedLine}`);
+}
+
 
 
 
