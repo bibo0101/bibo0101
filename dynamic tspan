@@ -1,0 +1,63 @@
+nodes
+  .append("text")
+  .attr("text-anchor", "middle")
+  .style("font-size", "12px")
+  .selectAll("tspan")
+  .data((d) => {
+    // Map the data into an array of objects dynamically
+    return [
+      {
+        text: d.data.name,
+        dy: "-20",
+        style: "bold",
+        size: "14px",
+        fill: "#000",
+        onClick: () => console.log(`Clicked on Name: ${d.data.name}`),
+      },
+      {
+        text: d.data.description,
+        dy: "15",
+        style: "normal",
+        size: "12px",
+        fill: "#000",
+        onClick: () => console.log(`Clicked on Description: ${d.data.description}`),
+      },
+      {
+        text: d.data.country,
+        dy: "15",
+        style: "normal",
+        size: "10px",
+        fill: "#555",
+        onClick: () => console.log(`Clicked on Country: ${d.data.country}`),
+      },
+    ];
+  })
+  .enter()
+  .append("tspan")
+  .attr("x", 0) // Center the text
+  .attr("dy", (d) => d.dy) // Position the line dynamically
+  .style("font-weight", (d) => d.style)
+  .style("font-size", (d) => d.size)
+  .style("fill", (d) => d.fill)
+  .text((d) => d.text) // Bind the text
+  .on("click", (event, d) => d.onClick()); // Handle click dynamically
+================================================================================================another prospecgt
+data.nodes.map((node) => (
+  <text key={node.id} textAnchor="middle" style={{ fontSize: "12px" }}>
+    {[
+      { text: node.name, dy: "-20", size: "14px", onClick: () => handleClick("Name", node.name) },
+      { text: node.description, dy: "15", size: "12px", onClick: () => handleClick("Description", node.description) },
+      { text: node.country, dy: "15", size: "10px", onClick: () => handleClick("Country", node.country) },
+    ].map((line, index) => (
+      <tspan
+        key={index}
+        x="0"
+        dy={line.dy}
+        style={{ fontSize: line.size }}
+        onClick={line.onClick}
+      >
+        {line.text}
+      </tspan>
+    ))}
+  </text>
+));
