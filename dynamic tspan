@@ -61,3 +61,25 @@ data.nodes.map((node) => (
     ))}
   </text>
 ));
+==========================================================================================================
+nodes
+  .append("text")
+  .attr("text-anchor", "middle")
+  .style("font-size", "12px")
+  .selectAll("tspan")
+  .data((d) => [
+    { text: d.data.name, dy: "-20", style: "bold", size: "14px" },
+    { text: d.data.description, dy: "15", style: "normal", size: "12px" },
+    { text: d.data.country, dy: "15", style: "normal", size: "10px" },
+  ])
+  .enter()
+  .append("tspan")
+  .attr("x", 0) // Center the text
+  .attr("dy", (d) => d.dy) // Position the line dynamically
+  .style("font-weight", (d) => d.style)
+  .style("font-size", (d) => d.size)
+  .text((d) => d.text)
+  .on("click", (event, d) => {
+    onNodeClick(d); // Use reusable `onClick` callback
+  });
+
