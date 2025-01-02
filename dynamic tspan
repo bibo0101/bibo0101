@@ -82,4 +82,89 @@ nodes
   .on("click", (event, d) => {
     onNodeClick(d); // Use reusable `onClick` callback
   });
+=================================================================================================
+function createOrgChart({
+  data,
+  container,
+  dimensions,
+  onNodeClick = () => {}, // Default onClick
+}) {
+  const { width, height } = dimensions;
+
+  const svg = d3
+    .select(container)
+    .append("svg")
+    .attr("width", width)
+    .attr("height", height);
+
+  const nodes = svg
+    .selectAll("g.node")
+    .data(data)
+    .enter()
+    .append("g")
+    .attr("class", "node")
+    .attr("transform", (d) => `translate(${d.x}, ${d.y})`)
+    .on("click", (event, d) => onNodeClick(d)); // Reusable onClick
+
+  // Add image to nodes
+  nodes
+    .append("image")
+    .attr("xlink:href", (d) => d.data.image) // Use the image URL from data
+    .attr("x", -20) // Center the image horizontally
+    .attr("y", -50) // Position the image above the text
+    .attr("width", 40) // Set image width
+    .attr("height", 40); // Set image height
+
+  // Add text to nodes
+  nodes
+    .append("text")
+    .attr("text-anchor", "middle")
+    .style("font-size", "12px")
+    .selectAll("tspan")
+    .data((d) => {
+      const maxChars = 15; // Max characters per line
+      const wrappedName = wrapText(d.data.name, maxChars);
+      const wrappedDescription = wrapText(d.data.description, maxChars);
+      const wrappedCountry = wrapText(d.data.country, maxChars);
+
+      return [
+        { text: wrappedName, dy: "-20", style: "bold", size: "14px" },
+        { text: wrappedDescription, dy: "15", style: "normal", size: "12px" },
+        { text: wrappedCountry, dy: "15", style: "normal", size: "10px" },
+      ];
+    })
+    .enter()
+    .append("tspan")
+    .attr("x", 0) // Center the text horizontally
+    .attr("dy", (d, i) => (i === 0 ? d.dy : "1.2em")) // Adjust dy for line breaks
+    .style("font-weight", (d) => d.style)
+    .style("font-size", (d) => d.size)
+    .text((d) => d.text)
+    .on("click", (event, d) => {
+      onNodeClick(d); // Use reusable onClick
+    });
+
+  // Helper function for word wrapping
+  function wrapText(text, maxChars) {
+    const words = text.split(" ");
+    let line = "";
+    const lines = [];
+
+    words.forEach((word) => {
+      if ((line + word).length > maxChars) {
+        lines.push(line);
+        line = word + " ";
+      } else {
+        line += word + " ";
+      }
+    });
+
+    if (line) {
+      lines.push(line.trim());
+    }
+
+    return lines;
+  }
+}
+
 
