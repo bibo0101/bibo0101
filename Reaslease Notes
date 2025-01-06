@@ -51,4 +51,17 @@
 | `pageSizeOptions`| `Array<number>` | `[10, 20]`    | Options for the page size selector.      |
 | `defaultPageSize`| `number`        | `10`          | Default number of rows per page.         |
 | `onRowClick`     | `Function`      | `null`        | Callback when a row is clicked.          |
+------------------------------------------------------------------------------------------------------
+Build and Deployment
+Build Process:
+
+Updated the build pipeline to use Nx workspace for optimized builds.
+Bundled the data table component using Vite for faster performance.
+The library is built as an ES module and CommonJS module to ensure compatibility with multiple environments.
+Generated type declarations (*.d.ts) to support TypeScript projects.
+Deployment:
+
+Published the package to npm under the name @your-org/data-table.
+Configured the deployment pipeline to automatically publish the package on successful builds in the main branch.
+Added a pre-release script to validate build artifacts and perform linting and unit tests.
 
