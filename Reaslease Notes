@@ -1,0 +1,43 @@
+# Release Notes
+
+## [Version 1.0.0] - 2025-01-06
+### 🆕 Added
+- Implemented server-side pagination, filtering, and sorting using AG Grid.
+- Added dynamic page size selector for data table customization.
+
+### 🐛 Fixed
+- Fixed column alignment issues during resizing.
+- Resolved filter state resetting unexpectedly during pagination.
+
+### 🔄 Changed
+- Improved data loading performance for large datasets.
+
+### 🔔 Deprecated
+- The `legacySorting` option will be removed in version 2.0.
+------------------------------------------------------------------------
+# Changelog
+
+## [1.2.0] - 2025-01-06
+### Added
+- Support for server-side pagination, filtering, and sorting with AG Grid.
+- Option to configure page size dynamically using props.
+
+### Fixed
+- Resolved column header misalignment during resizing.
+- Fixed unexpected filter reset during pagination.
+
+### Changed
+- Improved loading performance for large datasets.
+
+### Deprecated
+- `legacySorting` property is now deprecated and will be removed in version 2.0.
+
+---
+
+## [1.1.0] - 2024-12-15
+### Added
+- Introduced client-side filtering and sorting.
+- Added `loadingSpinner` to indicate data loading state.
+
+### Fixed
+- Addressed performance issues with large datasets.
