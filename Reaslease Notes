@@ -41,3 +41,14 @@
 
 ### Fixed
 - Addressed performance issues with large datasets.
+----------------------------------------------------------
+### Props
+
+| Prop Name        | Type            | Default       | Description                              |
+|------------------|-----------------|---------------|------------------------------------------|
+| `columns`        | `Array`         | `[]`          | Array of column definitions.             |
+| `rows`           | `Array`         | `[]`          | Array of data to display in the table.   |
+| `pageSizeOptions`| `Array<number>` | `[10, 20]`    | Options for the page size selector.      |
+| `defaultPageSize`| `number`        | `10`          | Default number of rows per page.         |
+| `onRowClick`     | `Function`      | `null`        | Callback when a row is clicked.          |
+
