@@ -64,4 +64,116 @@ Deployment:
 Published the package to npm under the name @your-org/data-table.
 Configured the deployment pipeline to automatically publish the package on successful builds in the main branch.
 Added a pre-release script to validate build artifacts and perform linting and unit tests.
+----------------------------------------------------------------------------------------------
+FAQ Section in Release Notes
+Possible Questions:
+General Usage
+
+How do I install the Data Table component?
+What props are required to render the data table?
+Can I use this component in a TypeScript project?
+Customization
+
+How can I customize the columns and rows?
+Can I change the default page size in the pagination?
+Is it possible to add custom actions like buttons in rows?
+Integration
+
+Does this component support server-side pagination, filtering, and sorting?
+How do I integrate this with my backend API?
+What happens if my server returns an error during data fetch?
+Compatibility
+
+What versions of React are supported?
+Is this component compatible with AG Grid enterprise features?
+Performance
+
+Does this data table handle large datasets efficiently?
+Are there any performance optimizations for slower networks?
+Troubleshooting
+
+Why is my table not rendering after providing columns and rows?
+Why are my filters or sorting options not working?
+How do I debug issues with data loading?
+Example FAQ Section in Release Notes
+markdown
+Copy code
+# Frequently Asked Questions (FAQ)
+
+### 1. How do I install the Data Table component?
+You can install the data table component via npm:
+```bash
+npm install @your-org/data-table
+2. What props are required to render the data table?
+At minimum, you need to pass columns and rows to render the data table:
+
+javascript
+Copy code
+<DataTable
+  columns={[
+    { headerName: 'Name', field: 'name' },
+    { headerName: 'Age', field: 'age' }
+  ]}
+  rows={[
+    { name: 'John Doe', age: 30 },
+    { name: 'Jane Smith', age: 25 }
+  ]}
+/>
+3. Does this component support server-side pagination, filtering, and sorting?
+Yes, the data table supports server-side operations. To enable this, configure the rowModelType as serverSide and provide a datasource:
+
+javascript
+Copy code
+<DataTable
+  rowModelType="serverSide"
+  serverSideDatasource={datasource}
+/>
+4. Can I add custom actions like buttons in the table rows?
+Yes, you can define a custom cell renderer for specific columns:
+
+javascript
+Copy code
+<DataTable
+  columns={[
+    {
+      headerName: 'Actions',
+      field: 'actions',
+      cellRendererFramework: ({ data }) => (
+        <button onClick={() => handleAction(data)}>Click Me</button>
+      )
+    }
+  ]}
+/>
+5. What should I do if the table doesn't render?
+Here are a few common troubleshooting steps:
+
+Ensure columns and rows are passed as valid arrays.
+Verify that all required props are provided.
+Check the console for errors and resolve any issues (e.g., missing dependencies).
+6. Is the data table compatible with AG Grid enterprise features?
+Yes, the data table supports AG Grid enterprise features, but you must install the AG Grid enterprise package and provide a valid license key.
+
+7. How can I change the default page size in pagination?
+You can configure the defaultPageSize prop to set a custom default value:
+
+javascript
+Copy code
+<DataTable
+  defaultPageSize={20}
+  pageSizeOptions={[10, 20, 50]}
+/>
+8. Does the data table handle large datasets efficiently?
+Yes, the table is optimized for performance, especially with server-side pagination and virtualization, ensuring smooth rendering for large datasets.
+
+9. What React versions are supported?
+This component is compatible with React 17+.
+
+10. How do I debug issues with data loading?
+Verify that your API is returning data in the correct format.
+Check the browser console for network or JavaScript errors.
+Add logging to your datasource or API handler to trace issues.
+Need More Help?
+If you have additional questions, feel free to reach out to the development team or check the documentation for detailed guidance.
+
+
 
