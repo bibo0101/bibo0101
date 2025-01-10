@@ -303,6 +303,62 @@ Currently, clm-spinner is designed for React. For vanilla JS, consider using a C
 
 Support
 For issues or feature requests, visit the GitHub repository.
+===================================================================
+Release Note for formatDate Utility Function
+Version: v1.0.0
+Release Date: January 9, 2025
+Overview
+The formatDate utility function has been introduced to the core utility library of the UI component. This function simplifies date and time formatting by returning a localized string with the following format:
+
+<Date> at <Time> (<TimeZone>)
+
+Key Features
+Date Formatting:
+Converts a JavaScript Date object into a localized date string using the user's locale settings.
+Time Formatting:
+Formats the time in 24-hour format (en-GB locale) with hours and minutes.
+Includes the time zone abbreviation (e.g., GMT, PST).
+Reusable and Consistent:
+Provides a consistent format for displaying date and time across the application.
+Usage Example
+The formatDate function can be used to display user-friendly date and time information in the UI.
+
+Input
+typescript
+Copy code
+const formattedDate = formatDate(new Date('2025-01-09T15:30:00Z'));
+console.log(formattedDate);
+Output
+plaintext
+Copy code
+"09/01/2025 at 15:30 (GMT)"
+API Details
+Function Signature
+typescript
+Copy code
+export const formatDate = (inputDate: Date): string;
+Parameters
+Parameter	Type	Description
+inputDate	Date	The JavaScript Date object to be formatted.
+Return Value
+A string representing the formatted date and time in the format:
+php
+Copy code
+<Date> at <Time> (<TimeZone>)
+Release Highlights
+New Utility: A utility function for formatting dates and times has been added to improve consistency in displaying date-time information across the application.
+Localization: Supports user-specific locales for date formatting.
+24-hour Time Format: Adopts the en-GB locale for time to align with the 24-hour format requirements.
+Changelog
+Added the formatDate utility function.
+Ensures compatibility with internationalized applications by leveraging toLocaleDateString and toLocaleTimeString.
+Notes for Developers
+Ensure the input to the function is a valid JavaScript Date object. Passing invalid date objects may result in unexpected behavior or errors.
+The function is designed for general use but can be customized further for specific localization needs if required.
+Known Limitations
+The function does not handle invalid date formats and assumes the input is always valid.
+Time zone names are provided in standard abbreviations (e.g., GMT, PST), and further customization may require additional development.
+
 
  
 
