@@ -515,8 +515,13 @@ Support
 For issues, feature requests, or contributions, please visit the GitHub Repository or contact the development team.
 
 Let me know if you'd like to expand any specific sections!
+==========================================================================================
+This file defines a reusable checkbox component. It is typically used for toggling boolean values (e.g., true/false) in a form.
 
-
+Key Features
+Customizable label.
+Supports dynamic state changes.
+Works with the Context API for shared state management.
 
 
 
