@@ -155,6 +155,7 @@ const handleError = (error) => {
 
 <DocumentUploader onError={handleError} />;
 ==============================================================================spinner
+A spinner is a visual indicator used in user interfaces to show that a process or operation is currently in progress. It's typically displayed during loading times, such as when fetching data from an API, submitting a form, or performing any asynchronous operation. Spinners help provide feedback to users, ensuring they know something is happening and the app hasn't frozen.
 Features
 Lightweight and easy to use.
 Fully customizable size, color, and style.
