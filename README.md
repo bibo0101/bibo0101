@@ -360,5 +360,166 @@ The function does not handle invalid date formats and assumes the input is alway
 Time zone names are provided in standard abbreviations (e.g., GMT, PST), and further customization may require additional development.
 
 
- 
+ ====================================================================
+clm-react-dynamic-form-element Documentation
+Overview
+The clm-react-dynamic-form-element component is a flexible, reusable, and configurable UI library designed to dynamically render form elements based on provided configuration. It supports various input types, validation rules, and dynamic data binding to streamline form creation in React applications.
+
+Key Features
+Dynamic Form Rendering:
+Renders form elements dynamically based on JSON configuration.
+Input Type Support:
+Supports input fields like text, textarea, select, radio, checkbox, date, and more.
+Validation:
+Supports built-in validation rules (e.g., required, min/max length, regex) and custom validators.
+Event Handling:
+Handles on-change, on-blur, and custom event handlers.
+Styling:
+Fully customizable styling through CSS or class-based properties.
+Integration:
+Can be integrated with state management libraries (e.g., Redux, Zustand) or React hooks.
+Blueprint Integration:
+Built-in compatibility with Barclays Blueprint CSS/React for styling consistency.
+Installation
+To install the package, run:
+
+bash
+Copy code
+npm install clm-react-dynamic-form-element
+Or, if you use Yarn:
+
+bash
+Copy code
+yarn add clm-react-dynamic-form-element
+Usage
+Basic Example
+Below is an example of how to use clm-react-dynamic-form-element to create a simple dynamic form.
+
+JSON Configuration
+json
+Copy code
+const formConfig = [
+  {
+    id: "name",
+    type: "text",
+    label: "Name",
+    placeholder: "Enter your name",
+    validation: { required: true, minLength: 2 },
+  },
+  {
+    id: "age",
+    type: "number",
+    label: "Age",
+    placeholder: "Enter your age",
+    validation: { required: true, min: 18 },
+  },
+  {
+    id: "gender",
+    type: "select",
+    label: "Gender",
+    options: ["Male", "Female", "Other"],
+    validation: { required: true },
+  },
+  {
+    id: "terms",
+    type: "checkbox",
+    label: "Accept Terms & Conditions",
+    validation: { required: true },
+  },
+];
+React Component
+tsx
+Copy code
+import React from "react";
+import { DynamicFormElement } from "clm-react-dynamic-form-element";
+
+const App = () => {
+  const handleSubmit = (formData) => {
+    console.log("Form Submitted:", formData);
+  };
+
+  return (
+    <div>
+      <h1>Dynamic Form Example</h1>
+      <DynamicFormElement
+        config={formConfig}
+        onSubmit={handleSubmit}
+        buttonLabel="Submit"
+      />
+    </div>
+  );
+};
+
+export default App;
+Props
+Prop Name	Type	Required	Description
+config	Array<Object>	Yes	Configuration array defining the form structure, element types, and validation rules.
+onSubmit	Function	Yes	Callback function triggered on form submission with the form data.
+onChange	Function	No	Callback function triggered on input change for real-time updates.
+buttonLabel	string	No	Customizable label for the submit button (default: "Submit").
+className	string	No	Custom class for additional styling.
+style	object	No	Inline style object for additional customization.
+Validation Rules
+Built-in Validators:
+Required: Ensures the field is not empty.
+Min/Max Length: Sets character length boundaries for text inputs.
+Regex: Validates against a custom regular expression.
+Custom Validators: Accepts a function to handle validation logic.
+Event Handling
+Event Name	Description
+onSubmit	Triggered when the form is submitted.
+onChange	Triggered on every input field change.
+onBlur	Triggered when an input field loses focus.
+Customization
+Styling with Blueprint CSS:
+Use className or Blueprint-specific classes like bp3-input, bp3-button, etc., for styling.
+Example:
+tsx
+Copy code
+<DynamicFormElement
+  config={formConfig}
+  className="bp3-dark"
+/>
+Dynamic Rendering:
+Fields can be conditionally displayed based on other field values using conditional logic in the JSON configuration.
+
+Advanced Usage
+Custom Components
+You can pass custom React components for specific input fields using a customComponent property.
+
+Example:
+tsx
+Copy code
+const formConfig = [
+  {
+    id: "profilePicture",
+    type: "custom",
+    label: "Profile Picture",
+    customComponent: <FileUploader />,
+  },
+];
+Release Notes
+Version 1.0.0
+Added support for text, number, select, radio, checkbox, and date inputs.
+Introduced JSON-based dynamic form configuration.
+Added validation support (built-in and custom).
+Enabled event handlers for form submission and input changes.
+Future Enhancements
+Add support for dynamic field addition/removal.
+Provide integration with third-party libraries like Formik and React Hook Form.
+Introduce a drag-and-drop form builder.
+Known Limitations
+Limited customization for advanced layouts. Requires additional CSS for non-standard designs.
+Nested field groups are not supported in this version.
+Support
+For issues, feature requests, or contributions, please visit the GitHub Repository or contact the development team.
+
+Let me know if you'd like to expand any specific sections!
+
+
+
+
+
+
+
 
