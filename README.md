@@ -631,6 +631,12 @@ This documentation provides a detailed understanding of the purpose, usage, and 
 
 
 
+Props
+Prop	Type	Description	Required
+children	ReactNode	The components that will have access to the configuration context.	Yes
+entitlement	object	A set of entitlement values used for feature gating or access control.	No
+url	string	Base URL or API endpoint to be shared globally.	No
+generateDefaultValue	boolean	A flag to determine whether to use default values in the configuration.	No
 
 
 
