@@ -155,4 +155,103 @@ describe("CLMDate Component", () => {
     expect(input).toBeDisabled();
   });
 });
+===========================================================================================
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import { CLMDate } from './CLMDate';
+import { ICLMdate } from './CLMDate.types';
+
+describe('CLMDate Component', () => {
+  it('should render the CLMDate component correctly', () => {
+    // Mock handleChange function
+    const mockHandleChange = jest.fn();
+
+    // Default props for the component
+    const defaultProps: ICLMdate = {
+      componentConfig: {
+        fieldName: 'testField',
+        fieldLabel: 'Test Label',
+        description: 'Test Description',
+      },
+      handleChange: mockHandleChange,
+      value: '2024-01-01',
+      errorMessage: '',
+      readOnly: false,
+    };
+
+    // Render the component
+    render(<CLMDate {...defaultProps} />);
+
+    // Find elements in the component
+    const inputElement = screen.getByRole('textbox');
+    const labelElement = screen.getByText('Test Label');
+    const descriptionElement = screen.getByText('Test Description');
+
+    // Assertions: Input field, label, and description should be present
+    expect(inputElement).toBeInTheDocument();
+    expect(labelElement).toBeInTheDocument();
+    expect(descriptionElement).toBeInTheDocument();
+
+    // Assert input attributes
+    expect(inputElement).toHaveAttribute('type', 'date');
+    expect(inputElement).toHaveAttribute('value', '2024-01-01');
+    expect(inputElement).not.toBeDisabled();
+  });
+
+  it('should call handleChange when input value changes', () => {
+    // Mock handleChange function
+    const mockHandleChange = jest.fn();
+
+    // Default props
+    const defaultProps: ICLMdate = {
+      componentConfig: {
+        fieldName: 'testField',
+        fieldLabel: 'Test Label',
+        description: 'Test Description',
+      },
+      handleChange: mockHandleChange,
+      value: '2024-01-01',
+      errorMessage: '',
+      readOnly: false,
+    };
+
+    // Render the component
+    render(<CLMDate {...defaultProps} />);
+
+    // Find the input element
+    const inputElement = screen.getByRole('textbox');
+
+    // Simulate a change event
+    fireEvent.change(inputElement, { target: { value: '2024-02-01' } });
+
+    // Assert handleChange was called with correct arguments
+    expect(mockHandleChange).toHaveBeenCalledWith('testField', '2024-02-01');
+  });
+
+  it('should render an error message if provided', () => {
+    // Default props with an error message
+    const defaultProps: ICLMdate = {
+      componentConfig: {
+        fieldName: 'testField',
+        fieldLabel: 'Test Label',
+        description: 'Test Description',
+      },
+      handleChange: jest.fn(),
+      value: '2024-01-01',
+      errorMessage: 'Invalid date',
+      readOnly: false,
+    };
+
+    // Render the component
+    render(<CLMDate {...defaultProps} />);
+
+    // Find the error message
+    const errorElement = screen.getByText('Invalid date');
+
+    // Assert the error message is rendered
+    expect(errorElement).toBeInTheDocument();
+  });
+
+  it('should disable the input field
+
 
