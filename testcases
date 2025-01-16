@@ -79,3 +79,80 @@ describe("CLMDate Component", () => {
     expect(screen.getByText("Test Date")).toBeInTheDocument();
   });
 });
+=================================================================================================
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { CLMDate } from "./CLMDate"; // Replace with the correct file path
+import { ICLMdate } from "./CLMDate.types"; // Replace with the correct file path
+
+const defaultProps: ICLMdate = {
+  componentConfig: {
+    fieldName: "testDate",
+    fieldLabel: "Test Date",
+    description: "Select a date",
+  },
+  section: "General",
+  handleChange: jest.fn(),
+  value: "2025-01-01",
+  errorMessage: "",
+  readOnly: false,
+};
+
+describe("CLMDate Component", () => {
+  it("renders the component with label, description, and input field", () => {
+    render(<CLMDate {...defaultProps} />);
+
+    // Check the label
+    expect(screen.getByText("Test Date")).toBeInTheDocument();
+
+    // Check the description
+    expect(screen.getByText("Select a date")).toBeInTheDocument();
+
+    // Check the input field
+    const input = screen.getByDisplayValue("2025-01-01");
+    expect(input).toBeInTheDocument();
+    expect(input).toHaveAttribute("type", "date");
+  });
+
+  it("calls handleChange when the input value changes", () => {
+    render(<CLMDate {...defaultProps} />);
+
+    // Find the input element
+    const input = screen.getByDisplayValue("2025-01-01");
+
+    // Simulate changing the input value
+    fireEvent.change(input, { target: { value: "2025-02-01" } });
+
+    // Check if handleChange was called with the correct arguments
+    expect(defaultProps.handleChange).toHaveBeenCalledWith(
+      "testDate",
+      "2025-02-01"
+    );
+  });
+
+  it("displays an error message when errorMessage prop is provided", () => {
+    const propsWithError = {
+      ...defaultProps,
+      errorMessage: "Invalid date",
+    };
+
+    render(<CLMDate {...propsWithError} />);
+
+    // Check if the error message is displayed
+    expect(screen.getByText("Invalid date")).toBeInTheDocument();
+  });
+
+  it("renders a disabled input when readOnly is true", () => {
+    const readOnlyProps = {
+      ...defaultProps,
+      readOnly: true,
+    };
+
+    render(<CLMDate {...readOnlyProps} />);
+
+    // Check if the input is disabled
+    const input = screen.getByDisplayValue("2025-01-01");
+    expect(input).toBeDisabled();
+  });
+});
+
