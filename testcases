@@ -252,6 +252,29 @@ describe('CLMDate Component', () => {
     expect(errorElement).toBeInTheDocument();
   });
 
-  it('should disable the input field
+  it('should disable the input field if readOnly is true', () => {
+    // Default props with readOnly set to true
+    const defaultProps: ICLMdate = {
+      componentConfig: {
+        fieldName: 'testField',
+        fieldLabel: 'Test Label',
+        description: 'Test Description',
+      },
+      handleChange: jest.fn(),
+      value: '2024-01-01',
+      errorMessage: '',
+      readOnly: true,
+    };
+
+    // Render the component
+    render(<CLMDate {...defaultProps} />);
+
+    // Find the input element
+    const inputElement = screen.getByRole('textbox');
+
+    // Assert the input field is disabled
+    expect(inputElement).toBeDisabled();
+  });
+})
 
 
