@@ -1,0 +1,81 @@
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { CLMDate } from "./CLMDate"; // Replace with your actual file path
+import { ICLMDate } from "./CLMDate.types"; // Replace with your actual interface path
+
+describe("CLMDate Component", () => {
+  const mockHandleChange = jest.fn();
+
+  const defaultProps: ICLMDate = {
+    componentConfig: {
+      fieldName: "testDate",
+      fieldLabel: "Test Date",
+      description: "Select a date",
+    },
+    handleChange: mockHandleChange,
+    value: "2025-01-01",
+    errorMessage: "",
+    readOnly: false,
+  };
+
+  it("renders the component correctly", () => {
+    render(<CLMDate {...defaultProps} />);
+
+    // Check if label is rendered
+    expect(screen.getByText("Test Date")).toBeInTheDocument();
+    // Check if description is rendered
+    expect(screen.getByText("Select a date")).toBeInTheDocument();
+    // Check if input is rendered
+    const input = screen.getByRole("textbox");
+    expect(input).toBeInTheDocument();
+    expect(input).toHaveValue("2025-01-01");
+  });
+
+  it("calls handleChange when input value changes", () => {
+    render(<CLMDate {...defaultProps} />);
+
+    const input = screen.getByRole("textbox");
+    fireEvent.change(input, { target: { value: "2025-02-01" } });
+
+    expect(mockHandleChange).toHaveBeenCalledTimes(1);
+    expect(mockHandleChange).toHaveBeenCalledWith("testDate", "2025-02-01");
+  });
+
+  it("displays an error message if provided", () => {
+    render(
+      <CLMDate
+        {...defaultProps}
+        errorMessage="This field is required"
+      />
+    );
+
+    // Check if the error message is displayed
+    expect(screen.getByText("This field is required")).toBeInTheDocument();
+  });
+
+  it("disables the input when readOnly is true", () => {
+    render(
+      <CLMDate
+        {...defaultProps}
+        readOnly={true}
+      />
+    );
+
+    const input = screen.getByRole("textbox");
+    expect(input).toBeDisabled();
+  });
+
+  it("renders the calendar icon", () => {
+    render(<CLMDate {...defaultProps} />);
+
+    const calendarIcon = screen.getByLabelText("calendar");
+    expect(calendarIcon).toBeInTheDocument();
+  });
+
+  it("renders without crashing when section prop is provided", () => {
+    render(<CLMDate {...defaultProps} section="Test Section" />);
+
+    // Check if component renders properly with the section prop
+    expect(screen.getByText("Test Date")).toBeInTheDocument();
+  });
+});
