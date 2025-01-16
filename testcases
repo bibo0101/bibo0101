@@ -315,5 +315,14 @@ describe('CLMDate Component', () => {
     expect(inputElement).toBeDisabled();
   });
 })
+=================================================================================
+test('renders CLMDate component', () => {
+  const componentConfig = { fieldName: 'date', fieldLabel: 'Date', description: 'Select a date' };
+  render(<CLMDate componentConfig={componentConfig} value="" handleChange={() => {}} readOnly={false} />);
+  
+  const inputElement = screen.getByLabelText('Date');
+  expect(inputElement).toBeInTheDocument();
+});
+
 
 
