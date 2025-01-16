@@ -1,3 +1,42 @@
+
+{
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "options": {
+        "jestConfig": "apps/your-app/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "outputs": ["coverage/apps/your-app"]
+    }
+  }
+}
+==================================================================
+nx generate @nrwl/jest:configuration your-app-or-lib-name
+
+==================================================================
+import { getJestProjects } from '@nrwl/jest';
+
+export default {
+  projects: getJestProjects(),
+};
+===================================================================
+/* jest.config.ts */
+export default {
+  displayName: 'your-app',
+  preset: '../../jest.preset.js',
+  testEnvironment: 'jsdom',
+  transform: {
+    '^.+\\.[tj]sx?$': 'ts-jest',
+  },
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  coverageDirectory: '../../coverage/apps/your-app',
+  setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
+};
+==================================================================
+import '@testing-library/jest-dom';
+
+==================================================================
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { CLMDate } from "./CLMDate"; // Replace with your actual file path
