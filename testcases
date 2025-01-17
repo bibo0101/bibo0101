@@ -1,3 +1,24 @@
+{
+  "projects": {
+    "clm-ui-fcrm": {
+      "root": "apps/clm-ui-fcrm",
+      "sourceRoot": "apps/clm-ui-fcrm/src",
+      "projectType": "application",
+      "targets": {
+        "test": {
+          "executor": "@nrwl/jest:jest",
+          "outputs": ["coverage/apps/clm-ui-fcrm"],
+          "options": {
+            "jestConfig": "apps/clm-ui-fcrm/jest.config.ts",
+            "passWithNoTests": true
+          }
+        }
+      }
+    }
+  }
+}
+
+=========================================================================
 import { Config } from '@jest/types';
 
 // Sync object
