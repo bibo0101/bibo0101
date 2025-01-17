@@ -1,3 +1,38 @@
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import { CLMDate } from "./CLMDate"; // Replace with the correct path to your component
+
+// Default props for the test
+const defaultProps = {
+  componentConfig: {
+    fieldName: "testDate",
+    fieldLabel: "Test Date",
+    description: "Select a date",
+  },
+  section: "Test Section",
+  handleChange: jest.fn(),
+  value: "2025-01-01",
+  errorMessage: "",
+  readOnly: false,
+};
+
+describe("CLMDate Component", () => {
+  it("renders the label and input field", () => {
+    // Render the component
+    render(<CLMDate {...defaultProps} />);
+
+    // Assert: Check if the label is displayed
+    expect(screen.getByText("Test Date")).toBeInTheDocument();
+
+    // Assert: Check if the input field with the correct value is rendered
+    const input = screen.getByDisplayValue("2025-01-01");
+    expect(input).toBeInTheDocument();
+    expect(input).toHaveAttribute("type", "date");
+  });
+});
+
+
+
 
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
