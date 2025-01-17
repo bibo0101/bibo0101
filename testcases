@@ -1,4 +1,12 @@
+jest.mock('@barclays/blueprint-react', () => {
+  const originalModule = jest.requireActual('@barclays/blueprint-react');
+  return {
+    ...originalModule,
+    Icon: ({ icon }) => <span data-testid={`icon-${icon}`}>{icon}</span>, // Mock icon rendering
+  };
+});
 
+===========================================================================
 {
   "targets": {
     "test": {
