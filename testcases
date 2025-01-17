@@ -1,3 +1,60 @@
+
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
+import CLMDate from './CLMDate'; // Adjust the import path based on your project structure
+
+jest.mock('@barclays/blueprint-react', () => ({
+  __esModule: true,  // This line indicates that the module is an ES module
+  ...jest.requireActual('@barclays/blueprint-react'),
+  Icon: () => <span>MockIcon</span>,  // Mock the Icon component
+}));
+
+const visibilityRule = { linkedFieldName: 'someField', linkedFieldValue: true };
+
+const componentConfig = {
+  fieldName: 'date',
+  fieldLabel: 'Date',
+  componentType: 'input',
+  description: 'Select a date',
+  values: ['2025-01-16'],
+  isVisible: visibilityRule,
+  isEditable: true,
+  validation: 'required'
+};
+
+test('renders CLMDate component', () => {
+  render(<CLMDate componentConfig={componentConfig} value="" handleChange={() => {}} readOnly={false} />);
+  const inputElement = screen.getByLabelText('Date');
+  expect(inputElement).toBeInTheDocument();
+});
+
+test('calls handleChange on input change', () => {
+  const handleChange = jest.fn();
+  render(<CLMDate componentConfig={componentConfig} value="" handleChange={handleChange} readOnly={false} />);
+  const inputElement = screen.getByLabelText('Date');
+  fireEvent.change(inputElement, { target: { value: '2025-01-16' } });
+  expect(handleChange).toHaveBeenCalledWith('date', '2025-01-16');
+});
+
+test('displays error message', () => {
+  render(<CLMDate componentConfig={componentConfig} value="" handleChange={() => {}} readOnly={false} errorMessage="Invalid date" />);
+  const errorElement = screen.getByText('Invalid date');
+  expect(errorElement).toBeInTheDocument();
+});
+
+test('renders component as editable or read-only based on isEditable property', () => {
+  render(<CLMDate componentConfig={componentConfig} value="" handleChange={() => {}} readOnly={false} />);
+  const editableInputElement = screen.getByLabelText('Date');
+  expect(editableInputElement).not.toBeDisabled();
+
+  const readOnlyConfig = { ...componentConfig, isEditable: false };
+  render(<CLMDate componentConfig={readOnlyConfig} value="" handleChange={() => {}} readOnly={true} />);
+  const readOnlyInputElement = screen.getByLabelText('Date');
+  expect(readOnlyInputElement).toBeDisabled();
+});
+
+=============================================================================
 jest.mock('@barclays/blueprint-react', () => {
   const originalModule = jest.requireActual('@barclays/blueprint-react');
   return {
