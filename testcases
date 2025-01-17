@@ -1,3 +1,18 @@
+import { Config } from '@jest/types';
+
+// Sync object
+const config: Config.InitialOptions = {
+  setupFilesAfterEnv: ['./jest.setup.ts'], // Reference the setup file
+  testEnvironment: 'jsdom',
+  transform: {
+    '^.+\\.tsx?$': 'ts-jest',
+  },
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
+};
+
+export default config;
+=======================
+
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import { CLMDate } from "./CLMDate"; // Replace with the correct path to your component
