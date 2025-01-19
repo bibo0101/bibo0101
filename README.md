@@ -1,4 +1,45 @@
-import { render } from '@testing-library/react';
+
+import { getJestProjects } from '@nx/jest';
+
+export default {
+  displayName: '<your-project-name>',
+  preset: '../../jest.preset.js',
+  setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
+  globals: {},
+  transform: {
+    '^.+\\.[tj]sx?$': 'ts-jest',
+  },
+  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
+  coverageDirectory: '../../coverage/apps/<your-project-name>',
+  testEnvironment: 'jsdom', // Use 'node' if not React-based
+};
+--------------------------------------------------------------------------
+const nxPreset = require('@nx/jest/preset').default;
+
+module.exports = { ...nxPreset };
+
+-----------------------------------------------------------
+{
+  "name": "<your-project-name>",
+  "targets": {
+    "test": {
+      "executor": "@nrwl/jest:jest",
+      "options": {
+        "jestConfig": "apps/<your-project-name>/jest.config.ts",
+        "passWithNoTests": true
+      },
+      "outputs": ["coverage/apps/<your-project-name>"]
+    }
+  }
+}
+-----------------------------------------------------------------
+npm install --save-dev jest @nrwl/jest @nx/jest ts-jest @types/jest
+-----------------------------------------------------------------
+npx nx test <your-project-name>
+-----------------------------------------------------------------------
+
+   
+   import { render } from '@testing-library/react';
 import { select } from 'd3';
 import FlowChart from './valpre-tree-chart';
 
