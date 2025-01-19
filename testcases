@@ -1,3 +1,43 @@
+
+import React from 'react';
+import { render, fireEvent } from '@testing-library/react';
+import { CLMSelect } from './CLMSelect';
+
+describe('CLMSelect Component', () => {
+  it('should render the options and call handleChange on selection', () => {
+    const mockHandleChange = jest.fn();
+
+    const mockConfig = {
+      fieldName: 'selectField',
+      fieldLabel: 'Select Option',
+      fieldDescription: 'Choose an option',
+      values: ['Option 1', 'Option 2', 'Option 3'],
+    };
+
+    const { getByLabelText, getByRole } = render(
+      <CLMSelect
+        componentConfig={mockConfig}
+        section="test-section"
+        handleChange={mockHandleChange}
+        value="Option 1"
+        readOnly={false}
+      />
+    );
+
+    // Check if options are rendered
+    expect(getByRole('option', { name: 'Option 1' })).toBeInTheDocument();
+    expect(getByRole('option', { name: 'Option 2' })).toBeInTheDocument();
+    expect(getByRole('option', { name: 'Option 3' })).toBeInTheDocument();
+
+    // Simulate user selecting a new option
+    fireEvent.change(getByLabelText('Select Option'), { target: { value: 'Option 2' } });
+
+    // Check if handleChange was called
+    expect(mockHandleChange).toHaveBeenCalledWith('selectField', 'Option 2');
+  });
+});
+
+=======================================================================================
 {
   "name": "<your-project-name>",
   "targets": {
