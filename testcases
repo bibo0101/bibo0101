@@ -1,4 +1,6 @@
-
+npm install --save-dev babel-jest @babel/core @babel/preset-env @babel/preset-react
+npm install --save-dev @babel/preset-typescript
+========================================================
 
 import React from 'react';
 import { render, fireEvent } from '@testing-library/react';
