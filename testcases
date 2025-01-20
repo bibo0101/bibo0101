@@ -1,3 +1,25 @@
+import React from "react";
+
+const MyComponent: React.FC = () => {
+  return <div>Hello, Jest!</div>;
+};
+
+export default MyComponent;
+
+=====================================================================
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import MyComponent from "./MyComponent";
+
+describe("MyComponent", () => {
+  it("renders correctly", () => {
+    render(<MyComponent />);
+    expect(screen.getByText("Hello, Jest!")).toBeInTheDocument();
+  });
+});
+
+================================================================================
+
 npm install --save @nx/react react react-dom
 npm install --save-dev @babel/core babel-jest @babel/preset-env @babel/preset-react @babel/preset-typescript jest ts-jest typescript
 
