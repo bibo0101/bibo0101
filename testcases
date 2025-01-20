@@ -1,3 +1,10 @@
+jest.mock('@barclays/clm-react-docum', () => ({
+  ClmReactDocumentUploader: jest.fn(() => <div>Mock Uploader</div>),
+}));
+
+jest.mock('./CLMUploadDocDetails', () => jest.fn(() => <div>Mock Upload Details</div>));
+
+=====================================================================
 const nxPreset = require("@nx/jest/preset");
 
 module.exports = {
