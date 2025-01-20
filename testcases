@@ -1,3 +1,86 @@
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import Alerts from './alert'; // Adjust the import path as needed
+import { useContentProvider } from '../../hooks/useContentProvider';
+
+// Mock the `useContentProvider` hook
+jest.mock('../../hooks/useContentProvider', () => ({
+  useContentProvider: jest.fn(),
+}));
+
+describe('Alerts Component', () => {
+  it('renders the Alert with success status and message', () => {
+    // Mock data for the content provider
+    const mockContentProvider = {
+      fcrmAlert: {
+        status: 'success',
+        message: 'Operation completed successfully.',
+      },
+      updateFcrmAlerts: jest.fn(),
+    };
+    (useContentProvider as jest.Mock).mockReturnValue(mockContentProvider);
+
+    render(<Alerts />);
+
+    // Check if the Alert is rendered with success status
+    expect(screen.getByText('Success:')).toBeInTheDocument();
+    expect(screen.getByText('Operation completed successfully.')).toBeInTheDocument();
+    expect(screen.getByLabelText('success icon label')).toBeInTheDocument();
+  });
+
+  it('renders the Alert with error status and message', () => {
+    const mockContentProvider = {
+      fcrmAlert: {
+        status: 'error',
+        message: 'There was an error processing your request.',
+      },
+      updateFcrmAlerts: jest.fn(),
+    };
+    (useContentProvider as jest.Mock).mockReturnValue(mockContentProvider);
+
+    render(<Alerts />);
+
+    // Check if the Alert is rendered with error status
+    expect(screen.getByText('Error:')).toBeInTheDocument();
+    expect(screen.getByText('There was an error processing your request.')).toBeInTheDocument();
+  });
+
+  it('calls onDismiss when the Alert is dismissed', () => {
+    const mockContentProvider = {
+      fcrmAlert: {
+        status: 'success',
+        message: 'Operation completed successfully.',
+      },
+      updateFcrmAlerts: jest.fn(),
+    };
+    (useContentProvider as jest.Mock).mockReturnValue(mockContentProvider);
+
+    render(<Alerts />);
+
+    // Simulate the dismiss action
+    const dismissButton = screen.getByRole('button');
+    fireEvent.click(dismissButton);
+
+    // Verify that `updateFcrmAlerts` was called
+    expect(mockContentProvider.updateFcrmAlerts).toHaveBeenCalledWith(undefined);
+  });
+
+  it('does not render anything if fcrmAlert is undefined', () => {
+    const mockContentProvider = {
+      fcrmAlert: undefined,
+      updateFcrmAlerts: jest.fn(),
+    };
+    (useContentProvider as jest.Mock).mockReturnValue(mockContentProvider);
+
+    const { container } = render(<Alerts />);
+
+    // Check that nothing is rendered
+    expect(container.firstChild).toBeNull();
+  });
+});
+
+=========================================================================================
 jest.mock('@barclays/clm-react-document', () => ({
   ...jest.requireActual('@barclays/clm-react-document'), // Include other actual exports
   ClmReactDocumentUploader: jest.fn((props) => (
