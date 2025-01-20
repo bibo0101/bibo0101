@@ -1,3 +1,52 @@
+jest.mock('@barclays/clm-react-document', () => ({
+  ...jest.requireActual('@barclays/clm-react-document'), // Include other actual exports
+  ClmReactDocumentUploader: jest.fn((props) => (
+    <div data-testid="mock-document-uploader">
+      Mock Document Uploader
+      <button onClick={props.onFilesUpload}>Upload Files</button>
+    </div>
+  )),
+}));
+
+jest.mock('./CLMUploadDocDetails', () => jest.fn(() => <div data-testid="mock-upload-details">Mock Upload Details</div>));
+jest.mock('../../../Fcrm/hooks/useApiProvider', () => ({
+  useApiProvider: jest.fn(() => ({
+    someMethod: jest.fn(),
+  })),
+}));
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import YourComponent from './YourComponent';
+
+test('renders mock components correctly', () => {
+  render(<YourComponent />);
+
+  // Verify that the mocked `ClmReactDocumentUploader` is rendered
+  expect(screen.getByTestId('mock-document-uploader')).toBeInTheDocument();
+
+  // Verify that the mocked `CLMUploadDocDetails` is rendered
+  expect(screen.getByTestId('mock-upload-details')).toBeInTheDocument();
+});
+
+test('calls onFilesUpload when upload button is clicked', () => {
+  const onFilesUpload = jest.fn();
+
+  render(
+    <YourComponent
+      ClmReactDocumentUploader={{
+        onFilesUpload,
+      }}
+    />
+  );
+
+  const uploadButton = screen.getByText('Upload Files');
+  fireEvent.click(uploadButton);
+
+  expect(onFilesUpload).toHaveBeenCalledTimes(1);
+});
+
+====================================================================
+
 jest.mock('@barclays/clm-react-docum', () => ({
   ClmReactDocumentUploader: jest.fn(() => <div>Mock Uploader</div>),
 }));
