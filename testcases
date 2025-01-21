@@ -1,3 +1,11 @@
+it('does not render Alert when contentProvider is null', () => {
+  useContentProvider.mockReturnValue(null);
+
+  const { container } = render(<Alerts />);
+  expect(container.firstChild).toBeNull();
+});
+
+=============================
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom/extend-expect';
