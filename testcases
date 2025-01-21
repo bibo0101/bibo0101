@@ -1,3 +1,33 @@
+it('does not throw error if updateFcrmAlerts is not defined', () => {
+  useContentProvider.mockReturnValue({
+    fcrmAlert: {
+      status: 'success',
+      message: 'Operation successful',
+    },
+  });
+
+  render(<Alerts />);
+  const dismissButton = screen.getByRole('button', { name: /dismiss/i });
+
+  // Simulate dismiss action
+  expect(() => fireEvent.click(dismissButton)).not.toThrow();
+});
+
+
+it('matches snapshot for success state', () => {
+  useContentProvider.mockReturnValue({
+    fcrmAlert: {
+      status: 'success',
+      message: 'Operation successful',
+    },
+  });
+
+  const { asFragment } = render(<Alerts />);
+  expect(asFragment()).toMatchSnapshot();
+});
+
+
+======================================================
 it('does not render Alert when contentProvider is null', () => {
   useContentProvider.mockReturnValue(null);
 
