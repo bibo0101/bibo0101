@@ -1,4 +1,46 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
+import Alerts from './Alerts';
+import { useContentProvider } from '../../hooks/useContentProvider';
 
+jest.mock('../../hooks/useContentProvider');
+
+describe('Alerts Component', () => {
+  it('renders success status and message with success icon', () => {
+    useContentProvider.mockReturnValue({
+      fcrmAlert: {
+        status: 'success',
+        message: 'Operation successful!',
+      },
+      updateFcrmAlerts: jest.fn(),
+    });
+
+    render(<Alerts />);
+
+    expect(screen.getByText('Success:')).toBeInTheDocument();
+    expect(screen.getByText('Operation successful!')).toBeInTheDocument();
+    expect(screen.getByLabelText('success icon label')).toBeInTheDocument();
+  });
+
+  it('renders error status and message with error icon', () => {
+    useContentProvider.mockReturnValue({
+      fcrmAlert: {
+        status: 'error',
+        message: 'Operation failed!',
+      },
+      updateFcrmAlerts: jest.fn(),
+    });
+
+    render(<Alerts />);
+
+    expect(screen.getByText('Error:')).toBeInTheDocument();
+    expect(screen.getByText('Operation failed!')).toBeInTheDocument();
+    expect(screen.getByLabelText('error icon label')).toBeInTheDocument();
+  });
+});
+
+======================================================================================================
 
 import React from 'react';
 import { render, screen } from '@testing-library/react';
