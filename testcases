@@ -1,3 +1,10 @@
+onDismiss={() => {
+  console.log('onDismiss called'); // Debug log
+  contentProvider?.updateFcrmAlerts(undefined);
+}}
+
+
+
 it('does not throw error if updateFcrmAlerts is not defined', () => {
   useContentProvider.mockReturnValue({
     fcrmAlert: {
