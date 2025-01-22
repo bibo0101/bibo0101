@@ -1,3 +1,32 @@
+
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import ReviewAndAttest from './ReviewAndAttest';
+import { useApiProvider } from './../../../hooks/useApiProvider';
+
+// Mock the useApiProvider hook
+jest.mock('./../../../hooks/useApiProvider', () => ({
+    useApiProvider: jest.fn(),
+}));
+
+describe('ReviewAndAttest Component', () => {
+    it('renders the Review & Attest button', () => {
+        // Mock the apiProvider return value
+        const mockReviewAndAttestData = jest.fn();
+        useApiProvider.mockReturnValue({ reviewAndAttestData: mockReviewAndAttestData });
+
+        render(<ReviewAndAttest />);
+
+        // Check if the button is in the document
+        const buttonElement = screen.getByText(/Review & Attest/i);
+        expect(buttonElement).toBeInTheDocument();
+
+        // Optionally, check if the button click calls the mock function
+        buttonElement.click();
+        expect(mockReviewAndAttestData).toHaveBeenCalled();
+    });
+});
+------------------------------------------------------------------
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
