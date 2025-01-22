@@ -1,5 +1,65 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import ReviewAndAttest from './ReviewAndAttest';
+import { useApiProvider } from './../../../hooks/useApiProvider';
+
+// Mock the `useApiProvider` hook
+jest.mock('./../../../hooks/useApiProvider', () => ({
+  useApiProvider: jest.fn(),
+}));
+
+describe('ReviewAndAttest Component', () => {
+  const mockReviewAndAttestData = jest.fn();
+
+  beforeEach(() => {
+    (useApiProvider as jest.Mock).mockReturnValue({
+      reviewAndAttestData: mockReviewAndAttestData,
+    });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('renders the Panel component correctly', () => {
+    render(<ReviewAndAttest />);
+    const panel = screen.getByTestId('panel');
+    expect(panel).toBeInTheDocument();
+    expect(panel).toHaveStyle({ marginBottom: '0.75em' });
+  });
+
+  test('renders the Button with the correct props', () => {
+    render(<ReviewAndAttest />);
+    const button = screen.getByRole('button', { name: /review & attest/i });
+
+    expect(button).toBeInTheDocument();
+    expect(button).toHaveAttribute('variant', 'primary');
+    expect(button).toHaveAttribute('mediaPosition', 'right');
+  });
+
+  test('renders the Icon inside the Button', () => {
+    render(<ReviewAndAttest />);
+    const icon = screen.getByTestId('icon'); // If your Icon component uses a `data-testid`
+    expect(icon).toBeInTheDocument();
+    expect(icon).toHaveAttribute('icon', 'document');
+    expect(icon).toHaveAttribute('size', 'sm');
+  });
+
+  test('calls reviewAndAttestData on Button click', () => {
+    render(<ReviewAndAttest />);
+    const button = screen.getByRole('button', { name: /review & attest/i });
+
+    fireEvent.click(button);
+
+    // Verify the function was called
+    expect(mockReviewAndAttestData).toHaveBeenCalledTimes(1);
+  });
+});
+
+====================================================================
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom'; // For additional matchers like 'toBeInTheDocument'
 import ReviewAndAttest from './ReviewAndAttest';
 import { useApiProvider } from './../../../hooks/useApiProvider';
