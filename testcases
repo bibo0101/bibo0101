@@ -1,3 +1,62 @@
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom'; // For additional matchers like 'toBeInTheDocument'
+import ReviewAndAttest from './ReviewAndAttest';
+import { useApiProvider } from './../../../hooks/useApiProvider';
+
+// Mock the `useApiProvider` hook
+jest.mock('./../../../hooks/useApiProvider', () => ({
+  useApiProvider: jest.fn(),
+}));
+
+describe('ReviewAndAttest Component', () => {
+  const mockReviewAndAttestData = jest.fn();
+
+  beforeEach(() => {
+    (useApiProvider as jest.Mock).mockReturnValue({
+      reviewAndAttestData: mockReviewAndAttestData,
+    });
+  });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('renders the component correctly', () => {
+    render(<ReviewAndAttest />);
+
+    // Assert that the button is in the document
+    const button = screen.getByRole('button', { name: /review & attest/i });
+    expect(button).toBeInTheDocument();
+
+    // Assert that the icon is rendered
+    const icon = screen.getByTestId('icon'); // Assuming Icon has a `data-testid` or equivalent
+    expect(icon).toBeInTheDocument();
+  });
+
+  test('button click calls the reviewAndAttestData function', () => {
+    render(<ReviewAndAttest />);
+
+    const button = screen.getByRole('button', { name: /review & attest/i });
+    fireEvent.click(button);
+
+    // Assert that the API function was called
+    expect(mockReviewAndAttestData).toHaveBeenCalledTimes(1);
+  });
+
+  test('button has correct styling and properties', () => {
+    render(<ReviewAndAttest />);
+
+    const button = screen.getByRole('button', { name: /review & attest/i });
+
+    // Assert button has the correct classes or attributes
+    expect(button).toHaveClass('bp3-button'); // Adjust for Blueprint class
+    expect(button).toHaveAttribute('variant', 'primary');
+    expect(button).toHaveAttribute('mediaPosition', 'right');
+  });
+});
+
+=======================================================================
 <button
   data-testid="alert-dismiss-button"
   onClick={() => contentProvider?.updateFcrmAlerts(undefined)}
