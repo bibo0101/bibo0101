@@ -1,3 +1,30 @@
+describe('getUserInfo', () => {
+  beforeEach(() => {
+    // Clear sessionStorage before each test
+    sessionStorage.clear();
+  });
+
+  it('should throw an error if user information is missing in sessionStorage', () => {
+    expect(() => getUserInfo()).toThrow('Unable to find user information');
+  });
+
+  it('should throw an error if user information is incomplete', () => {
+    const incompleteUserInfo = JSON.stringify({ firstName: '', lastName: '', guId: null });
+    sessionStorage.setItem('userInfo', incompleteUserInfo);
+
+    expect(() => getUserInfo()).toThrow('Missing user information');
+  });
+
+  it('should return user information when all fields are valid', () => {
+    const validUserInfo = JSON.stringify({ firstName: 'John', lastName: 'Doe', guId: '12345' });
+    sessionStorage.setItem('userInfo', validUserInfo);
+
+    const result = getUserInfo();
+    expect(result).toEqual({ userName: 'John Doe', userBrid: '12345' });
+  });
+});
+
+============================================================
 import { getUser Info } from './path/to/your/getUser Info'; // Adjust the import based on your structure
 import { loggedInUser  } from '../../interfaces/ApiInterfaces';
 
