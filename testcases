@@ -1,3 +1,20 @@
+
+it('should remove the risk name if it is overridden and exists at index 0', () => {
+        const riskItem: RiskItem = { riskName: 'Risk A', overridden: true };
+        const overriddenRisks: QuestionId[] = ['Risk A', 'Risk B'];
+
+        const updatedRisks = updateOverrideItems(riskItem, overriddenRisks);
+        expect(updatedRisks).toEqual(['Risk B']); // 'Risk A' should be removed
+    });
+
+    it('should remove the risk name if it is overridden and exists at index 1', () => {
+        const riskItem: RiskItem = { riskName: 'Risk B', overridden: true };
+        const overriddenRisks: QuestionId[] = ['Risk A', 'Risk B'];
+
+        const updatedRisks = updateOverrideItems(riskItem, overriddenRisks);
+        expect(updatedRisks).toEqual(['Risk A']); // 'Risk B' should be removed
+    });
+================================================================================
 import { updateRiskItemArray, updateOverrideItems } from './path/to/your/riskFunctions'; // Adjust the import based on your structure
 import { RiskItem, QuestionId } from 'src/interfaces/RiskInterfaces';
 
