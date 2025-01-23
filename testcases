@@ -1,4 +1,63 @@
+import { getUser Info } from './path/to/your/getUser Info'; // Adjust the import based on your structure
+import { loggedInUser  } from '../../interfaces/ApiInterfaces';
 
+describe('getUser Info', () => {
+    beforeEach(() => {
+        // Clear session storage before each test
+        sessionStorage.clear();
+    });
+
+    it('should return user information when valid data is present in session storage', () => {
+        const mockUser  = {
+            firstName: 'John',
+            lastName: 'Doe',
+            guId: '12345',
+        };
+
+        // Set mock user data in session storage
+        sessionStorage.setItem('userInfo', JSON.stringify(mockUser ));
+
+        const expectedUser Info: loggedInUser  = {
+            userName: 'John Doe',
+            userBrid: '12345',
+        };
+
+        // Call the function and check the result
+        const userInfo = getUser Info();
+        expect(userInfo).toEqual(expectedUser Info);
+    });
+
+    it('should throw an error if user information is not found in session storage', () => {
+        expect(() => getUser Info()).toThrow('Unable to find user information');
+    });
+
+    it('should throw an error if user information is incomplete', () => {
+        const incompleteUser  = {
+            firstName: 'Jane',
+            lastName: '', // Missing last name
+            guId: '67890',
+        };
+
+        // Set incomplete user data in session storage
+        sessionStorage.setItem('userInfo', JSON.stringify(incompleteUser ));
+
+        expect(() => getUser Info()).toThrow('Missing user information');
+    });
+
+    it('should throw an error if user information is missing fields', () => {
+        const incompleteUser  = {
+            firstName: 'Jane',
+            // lastName is missing
+            guId: '67890',
+        };
+
+        // Set incomplete user data in session storage
+        sessionStorage.setItem('userInfo', JSON.stringify(incompleteUser ));
+
+        expect(() => getUser Info()).toThrow('Missing user information');
+    });
+});
+==================================================================================
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
