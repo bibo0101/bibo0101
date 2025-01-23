@@ -52,6 +52,31 @@ describe('Risk Functions', () => {
 
             const updatedRisks = updateOverrideItems(riskItem, overriddenRisks);
             expect(updatedRisks
+
+it('should not change the overridden risks if the risk item is not overridden', () => {
+            const riskItem: RiskItem = { riskName: 'Risk A', overridden: false };
+            const overriddenRisks: QuestionId[] = ['Risk A', 'Risk B'];
+
+            const updatedRisks = updateOverrideItems(riskItem, overriddenRisks);
+            expect(updatedRisks).toEqual(['Risk A', 'Risk B']); // No change
+        });
+
+        it('should not change the overridden risks if the risk item is not found and is overridden', () => {
+            const riskItem: RiskItem = { riskName: 'Risk C', overridden: true };
+            const overriddenRisks: QuestionId[] = ['Risk A', 'Risk B'];
+
+            const updatedRisks = updateOverrideItems(riskItem, overriddenRisks);
+            expect(updatedRisks).toEqual(['Risk A', 'Risk B', 'Risk C']); // 'Risk C' should be added
+        });
+
+        it('should handle an empty overridden risks array', () => {
+            const riskItem: RiskItem = { riskName: 'Risk A', overridden: true };
+            const overriddenRisks: QuestionId[] = [];
+
+            const updatedRisks = updateOverrideItems(riskItem, overriddenRisks);
+            expect(updatedRisks).toEqual(['Risk A']); // 'Risk A' should be added
+        });
+    });
 =================================================================
 import { updateOverrideItems } from "./path-to-your-functions";
 import { RiskItem, QuestionId } from "src/interfaces/RiskInterfaces";
