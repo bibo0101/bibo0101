@@ -1,3 +1,46 @@
+import { updateOverrideItems } from "./path-to-your-functions";
+import { RiskItem, QuestionId } from "src/interfaces/RiskInterfaces";
+
+describe("updateOverrideItems", () => {
+  it("should add the riskName to overriddenRisks if overridden is true", () => {
+    const riskItem: RiskItem = { riskName: "Risk1", overridden: true };
+    const overriddenRisks: QuestionId[] = ["Risk2"];
+
+    const updatedRisks = updateOverrideItems(riskItem, overriddenRisks);
+
+    expect(updatedRisks).toEqual(["Risk2", "Risk1"]);
+  });
+
+  it("should remove the riskName from overriddenRisks if overridden is false", () => {
+    const riskItem: RiskItem = { riskName: "Risk1", overridden: false };
+    const overriddenRisks: QuestionId[] = ["Risk1", "Risk2"];
+
+    const updatedRisks = updateOverrideItems(riskItem, overriddenRisks);
+
+    expect(updatedRisks).toEqual(["Risk2"]);
+  });
+
+  it("should not modify the overriddenRisks if riskName is not present and overridden is false", () => {
+    const riskItem: RiskItem = { riskName: "Risk3", overridden: false };
+    const overriddenRisks: QuestionId[] = ["Risk1", "Risk2"];
+
+    const updatedRisks = updateOverrideItems(riskItem, overriddenRisks);
+
+    expect(updatedRisks).toEqual(["Risk1", "Risk2"]);
+  });
+
+  it("should handle an empty overriddenRisks array and add riskName if overridden is true", () => {
+    const riskItem: RiskItem = { riskName: "Risk1", overridden: true };
+    const overriddenRisks: QuestionId[] = [];
+
+    const updatedRisks = updateOverrideItems(riskItem, overriddenRisks);
+
+    expect(updatedRisks).toEqual(["Risk1"]);
+  });
+});
+
+===========================================
+
 describe('getUserInfo', () => {
   beforeEach(() => {
     // Clear sessionStorage before each test
