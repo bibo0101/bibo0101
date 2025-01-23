@@ -4,6 +4,59 @@ import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import RiskScoreContainer from './RiskScoreContainer';
+import { RiskScoreDisplay } from '../../../Generic/RiskScoreDisplay/RiskScoreDisplay'; // Adjust the import based on your structure
+import { getRiskRating } from 'src/redux/selectors/riskDataSelectors'; // Adjust the import based on your structure
+
+const mockStore = configureStore([]);
+
+describe('RiskScoreContainer Component', () => {
+    let store;
+
+    beforeEach(() => {
+        store = mockStore({
+            riskScore: {
+                overriddenRiskScore: 'High', // Example risk score
+            },
+        });
+    });
+
+    it('renders the RiskScoreDisplay with the correct risk rating', () => {
+        render(
+            <Provider store={store}>
+                <RiskScoreContainer />
+            </Provider>
+        );
+
+        // Check if the RiskScoreDisplay is rendered with the correct risk rating
+        expect(screen.getByText(/Risk Attestation/i)).toBeInTheDocument();
+        expect(screen.getByText(/High/i)).toBeInTheDocument(); // Check for the risk rating
+    });
+
+    it('renders an empty RiskScoreDisplay when overriddenRiskScore is not set', () => {
+        store = mockStore({
+            riskScore: {
+                overriddenRiskScore: '', // No risk score
+            },
+        });
+
+        render(
+            <Provider store={store}>
+                <RiskScoreContainer />
+            </Provider>
+        );
+
+        // Check if the RiskScoreDisplay is rendered with an empty risk rating
+        expect(screen.getByText(/Risk Attestation/i)).toBeInTheDocument();
+        expect(screen.queryByText(/High/i)).not.toBeInTheDocument(); // Ensure 'High' is not present
+        expect(screen.getByText(/''/i)).not.toBeInTheDocument(); // Adjust based on how you handle empty states
+    });
+});
+=====================================================================
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import RiskScoreContainer from './RiskScoreContainer';
 import { RiskScoreDisplay } from './RiskScoreDisplay'; // Adjust the import based on your structure
 
 const mockStore = configureStore([]);
