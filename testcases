@@ -1,10 +1,141 @@
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { useSelector } from 'react-redux';
+import CloneConfirmationModal from './CloneConfirmationModal'; // Adjust the path as necessary
+import '@testing-library/jest-dom/extend-expect';
 
+jest.mock('react-redux', () => ({
+  useSelector: jest.fn(),
+}));
+
+describe('CloneConfirmationModal', () => {
+  it('renders loading state when loading is true', () => {
+    render(
+      <CloneConfirmationModal
+        modelReference={jest.fn()}
+        modalClose={jest.fn()}
+        cloneEntity={null}
+        cloneFcrmData={jest.fn()}
+        loading={true}
+        error={null}
+      />
+    );
+
+    expect(screen.getByRole('img', { name: /loading/i })).toBeInTheDocument();
+  });
+
+  it('renders error icon when there is an error', () => {
+    render(
+      <CloneConfirmationModal
+        modelReference={jest.fn()}
+        modalClose={jest.fn()}
+        cloneEntity={null}
+        cloneFcrmData={jest.fn()}
+        loading={false}
+        error="Some error occurred"
+      />
+    );
+
+    expect(screen.getByRole('img', { name: /document/i })).toHaveAttribute('status', 'error');
+  });
+
+  it('renders success icon when FCRM status is "Completed"', () => {
+    (useSelector as jest.Mock).mockReturnValue('Completed');
+
+    render(
+      <CloneConfirmationModal
+        modelReference={jest.fn()}
+        modalClose={jest.fn()}
+        cloneEntity={null}
+        cloneFcrmData={jest.fn()}
+        loading={false}
+        error={null}
+      />
+    );
+
+    expect(screen.getByRole('img', { name: /document/i })).toHaveAttribute('status', 'success');
+  });
+
+  it('calls modalClose when "No" button is clicked', () => {
+    const modalCloseMock = jest.fn();
+
+    render(
+      <CloneConfirmationModal
+        modelReference={jest.fn()}
+        modalClose={modalCloseMock}
+        cloneEntity={null}
+        cloneFcrmData={jest.fn()}
+        loading={false}
+        error={null}
+      />
+    );
+
+    const noButton = screen.getByRole('button', { name: /no/i });
+    fireEvent.click(noButton);
+
+    expect(modalCloseMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('calls cloneFcrmData when "Yes" button is clicked', () => {
+    const cloneFcrmDataMock = jest.fn();
+
+    render(
+      <CloneConfirmationModal
+        modelReference={jest.fn()}
+        modalClose={jest.fn()}
+        cloneEntity={{ partyName: 'Test Party' }}
+        cloneFcrmData={cloneFcrmDataMock}
+        loading={false}
+        error={null}
+      />
+    );
+
+    const yesButton = screen.getByRole('button', { name: /yes/i });
+    fireEvent.click(yesButton);
+
+    expect(cloneFcrmDataMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('displays FCRM not completed message', () => {
+    (useSelector as jest.Mock).mockReturnValue('In Progress');
+
+    render(
+      <CloneConfirmationModal
+        modelReference={jest.fn()}
+        modalClose={jest.fn()}
+        cloneEntity={null}
+        cloneFcrmData={jest.fn()}
+        loading={false}
+        error={null}
+      />
+    );
+
+    expect(screen.getByText(/fcrm is not completed/i)).toBeInTheDocument();
+  });
+
+  it('displays party name in modal content', () => {
+    render(
+      <CloneConfirmationModal
+        modelReference={jest.fn()}
+        modalClose={jest.fn()}
+        cloneEntity={{ partyName: 'Test Party' }}
+        cloneFcrmData={jest.fn()}
+        loading={false}
+        error={null}
+      />
+    );
+
+    expect(screen.getByText(/do you want to clone fcrm for Test Party/i)).toBeInTheDocument();
+  });
+});
+
+==================================================================
 it('renders AttestationPanel without crashing', () => {
   render(<AttestationPanel readOnly={false} />);
   expect(screen.getByText('Attestation')).toBeInTheDocument();
 });
 
------------------------------------------------------------------AttestationPanel
+-----------------------------------------------------------------AttestationPanel test cases
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
