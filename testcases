@@ -1,3 +1,26 @@
+it('should remove the risk item from the specified risk level', () => {
+  const riskItems = new Map();
+  riskItems.set('High', [{ name: 'Risk A' }, { name: 'Risk B' }]);
+
+  const updatedRiskItems = removeRiskItem('High', 'Risk A', riskItems);
+
+  expect(updatedRiskItems.get('High')).toHaveLength(1);
+  expect(updatedRiskItems.get('High')[0].name).toBe('Risk B');
+});
+it('should create a new RiskItem with the correct properties', () => {
+  const riskName = 'Risk A';
+  const riskType = 'Boolean';
+  const riskItem = newRiskItem(riskName, riskType);
+
+  expect(riskItem.name).toBe(riskName);
+  expect(riskItem.type).toBe(riskType);
+});
+it('should generate the correct label for boolean risks', () => {
+  const label = booleanRiskLabel('Risk A');
+  expect(label).toBe('Boolean risk: Risk A');
+});
+
+================================================
 import {
     addRiskItem,
     removeRiskItem,
