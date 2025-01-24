@@ -1,3 +1,115 @@
+import {
+    addRiskItem,
+    removeRiskItem,
+    riskItemsListIncludes,
+    riskItemsIndexOfRiskName,
+    newRiskItem,
+    countryOrIndustryRiskLabel,
+    booleanRiskLabel,
+} from './path/to/your/riskFunctions'; // Adjust the import based on your structure
+import { RiskItem, RiskLabel, RiskLevel, RiskName, RiskType } from 'src/interfaces/RiskInterfaces';
+
+describe('Risk Functions', () => {
+    const riskLevel: RiskLevel = 'High'; // Example risk level
+    const riskName: RiskName = 'Risk A'; // Example risk name
+    const riskType: RiskType = 'boolean'; // Example risk type
+    const riskItems: Map<RiskLevel, RiskItem[]> = new Map();
+
+    describe('addRiskItem', () => {
+        it('should add a new RiskItem to the specified risk level', () => {
+            const updatedRiskItems = addRiskItem(riskLevel, riskName, riskType, riskItems);
+            expect(updatedRiskItems.get(riskLevel)).toHaveLength(1);
+            expect(updatedRiskItems.get(riskLevel)[0].riskName).toBe(riskName);
+        });
+
+        it('should add multiple RiskItems to the same risk level', () => {
+            addRiskItem(riskLevel, riskName, riskType, riskItems);
+            addRiskItem(riskLevel, 'Risk B', 'boolean', riskItems);
+            const updatedRiskItems = addRiskItem(riskLevel, 'Risk C', 'boolean', riskItems);
+            expect(updatedRiskItems.get(riskLevel)).toHaveLength(3);
+        });
+    });
+
+    describe('removeRiskItem', () => {
+        it('should remove a RiskItem from the specified risk level', () => {
+            addRiskItem(riskLevel, riskName, riskType, riskItems);
+            const updatedRiskItems = removeRiskItem(riskLevel, riskName, riskItems);
+            expect(updatedRiskItems.get(riskLevel)).toHaveLength(0);
+        });
+
+        it('should not change the risk items if the RiskItem does not exist', () => {
+            addRiskItem(riskLevel, riskName, riskType, riskItems);
+            const updatedRiskItems = removeRiskItem(riskLevel, 'Non-existent Risk', riskItems);
+            expect(updatedRiskItems.get(riskLevel)).toHaveLength(1);
+        });
+
+        it('should remove the risk level if no RiskItems remain', () => {
+            addRiskItem(riskLevel, riskName, riskType, riskItems);
+            const updatedRiskItems = removeRiskItem(riskLevel, riskName, riskItems);
+            expect(updatedRiskItems.has(riskLevel)).toBe(false);
+        });
+    });
+
+    describe('riskItemsListIncludes', () => {
+        it('should return true if the risk name exists in the list', () => {
+            const riskItem: RiskItem = newRiskItem(riskName, riskType);
+            const riskItemsList: RiskItem[] = [riskItem];
+            const result = riskItemsListIncludes(riskName, riskItemsList);
+            expect(result).toBe(true);
+        });
+
+        it('should return false if the risk name does not exist in the list', () => {
+            const riskItemsList: RiskItem[] = [];
+            const result = riskItemsListIncludes(riskName, riskItemsList);
+            expect(result).toBe(false);
+        });
+
+        it('should return false if the risk items list is undefined', () => {
+            const result = riskItemsListIncludes(riskName, undefined);
+            expect(result).toBe(false);
+        });
+    });
+
+    describe('riskItemsIndexOfRiskName', () => {
+        it('should return the index of the risk item by its name', () => {
+            const riskItem: RiskItem = newRiskItem(riskName, riskType);
+            const riskItemsList: RiskItem[] = [riskItem];
+            const index = riskItemsIndexOfRiskName(riskName, riskItemsList);
+            expect(index).toBe(0);
+        });
+
+        it('should return -1 if the risk item does not exist', () => {
+            const riskItemsList: RiskItem[] = [];
+            const index = riskItemsIndexOfRiskName(riskName, riskItemsList);
+            expect(index).toBe(-1);
+        });
+    });
+
+    describe('newRiskItem', () => {
+        it('should create a new RiskItem with the correct properties', () => {
+            const riskItem = newRiskItem(riskName, riskType);
+            expect(riskItem.riskName).toBe(riskName);
+            expect(riskItem.riskType).toBe(riskType);
+            expect(riskItem.riskLabel).toBe('Boolean risk: Risk A'); // Adjust based on the risk type
+        });
+    });
+
+    describe('countryOrIndustryRiskLabel', () => {
+        it('should generate the correct label for country or industry risks', () => {
+            const label = countryOrIndustryRiskLabel(riskName);
+            expect(label).toBe('Please explain connection(s) to Risk A');
+        });
+    });
+
+    describe('booleanRiskLabel', () => {
+        it('should generate the correct label for boolean risks', () => {
+            const label = booleanRiskLabel(riskName);
+            expect(label).toBe('Boolean risk: Risk A');
+        });
+    });
+});
+
+=================================================================
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { useSelector } from 'react-redux';
