@@ -1,3 +1,10 @@
+it('should handle adding to an empty list', () => {
+            const updatedRiskItems = addRiskItem(riskLevel, riskName, riskType, riskItems);
+            const newList = updatedRiskItems.get(riskLevel);
+            expect(newList).toHaveLength(1); // Check that newList has one item
+            expect(newList[0].riskName).toBe(riskName); // Check that the item is the one added
+        });
+
 it('should not modify the map if the item does not exist', () => {
   const riskLevel = 'High';
   const newList = ['Risk B'];
