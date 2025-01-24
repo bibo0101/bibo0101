@@ -1,4 +1,98 @@
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import AttestationPanel from './AttestationPanel'; // Adjust the import path as necessary
+import { updateFcrmAttestation } from '../../../redux/slices/fcrmAttestationSlice';
+import { getUser Info } from '../../helpers/userDetails';
+import { useApiProvider } from '../../../Fcrm/hooks/useApiProvider';
 
+// Mock the necessary functions and modules
+jest.mock('../../../redux/slices/fcrmAttestationSlice', () => ({
+    updateFcrmAttestation: jest.fn(),
+}));
+
+jest.mock('../../helpers/userDetails', () => ({
+    getUser Info: jest.fn(),
+}));
+
+const mockStore = configureStore([]);
+
+describe('AttestationPanel Component', () => {
+    let store;
+
+    beforeEach(() => {
+        store = mockStore({
+            riskScore: {
+                baseRiskScore: 100,
+                overriddenRiskScore: 80,
+            },
+            attestationData: {
+                attestedByName: '',
+                attestedByBrid: '',
+            },
+            // Add other necessary initial state here
+        });
+    });
+
+    it('renders correctly when readOnly is true', () => {
+        render(
+            <Provider store={store}>
+                <AttestationPanel readOnly={true} />
+            </Provider>
+        );
+
+        expect(screen.getByText(/Attestation/i)).toBeInTheDocument();
+        expect(screen.getByText(/You requested a Risk Rating change from:/i)).toBeInTheDocument();
+        expect(screen.getByText(/Risk Rating for party is:/i)).toBeInTheDocument();
+    });
+
+    it('renders correctly when readOnly is false', () => {
+        render(
+            <Provider store={store}>
+                <AttestationPanel readOnly={false} />
+            </Provider>
+        );
+
+        expect(screen.getByText(/Attestation/i)).toBeInTheDocument();
+        // Add more assertions based on what should be rendered when not readOnly
+    });
+
+    it('dispatches updateFcrmAttestation when setAttestation is called', () => {
+        const { getByTestId } = render(
+            <Provider store={store}>
+                <AttestationPanel readOnly={false} />
+            </Provider>
+        );
+
+        // Simulate a user action that triggers setAttestation
+        fireEvent.click(getByTestId('attest-button')); // Adjust the test ID as necessary
+
+        expect(updateFcrmAttestation).toHaveBeenCalled();
+    });
+
+    it('dispatches updateFcrmAttestation with user data when setOverrideAttestation is called', () => {
+        const userData = { userName: 'John Doe', userBrid: '12345' };
+        (getUser Info as jest.Mock).mockReturnValue(userData);
+
+        const { getByTestId } = render(
+            <Provider store={store}>
+                <AttestationPanel readOnly={false} />
+            </Provider>
+        );
+
+        // Simulate a user action that triggers setOverrideAttestation
+        fireEvent.click(getByTestId('override-button')); // Adjust the test ID as necessary
+
+        expect(updateFcrmAttestation).toHaveBeenCalledWith(expect.objectContaining({
+            attestedByName: 'John Doe',
+            attestedByBrid: '12345',
+        }));
+    });
+
+    // Add more tests as necessary to cover other functionalities
+});
+==================================================================
 import { getJestProjects } from '@nx/jest';
 
 export default {
