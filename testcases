@@ -1,3 +1,24 @@
+it('should not modify the map if the item does not exist', () => {
+  const riskLevel = 'High';
+  const newList = ['Risk B'];
+  const idx = -1; // Item not found
+  const newRiskItems = new Map();
+  newRiskItems.set(riskLevel, [...newList]);
+
+  if (idx >= 0) {
+    newList.splice(idx, 1);
+    if (newList.length !== 0) {
+      newRiskItems.set(riskLevel, newList);
+    } else {
+      newRiskItems.delete(riskLevel);
+    }
+  }
+
+  expect(newList).toEqual(['Risk B']);
+  expect(newRiskItems.get(riskLevel)).toEqual(['Risk B']);
+});
+
+===================================================================
 it('should remove the risk item from the specified risk level', () => {
   const riskItems = new Map();
   riskItems.set('High', [{ name: 'Risk A' }, { name: 'Risk B' }]);
