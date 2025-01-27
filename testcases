@@ -1,3 +1,83 @@
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { useContentProvider } from '../../hooks/useContentProvider';
+import Alerts from './Alerts'; // Adjust the import path as necessary
+
+// Mock the useContentProvider hook
+jest.mock('../../hooks/useContentProvider', () => ({
+    useContentProvider: jest.fn(),
+}));
+
+describe('Alerts Component', () => {
+    const mockUpdateFcrmAlerts = jest.fn();
+
+    beforeEach(() => {
+        // Reset the mock before each test
+        jest.clearAllMocks();
+    });
+
+    it('renders success alert correctly', () => {
+        (useContentProvider as jest.Mock).mockReturnValue({
+            fcrmAlert: {
+                status: 'success',
+                message: 'Operation completed successfully.',
+            },
+            updateFcrmAlerts: mockUpdateFcrmAlerts,
+        });
+
+        render(<Alerts />);
+
+        expect(screen.getByText(/Success:/i)).toBeInTheDocument();
+        expect(screen.getByText(/Operation completed successfully./i)).toBeInTheDocument();
+        expect(screen.getByLabelText(/success icon label/i)).toBeInTheDocument();
+    });
+
+    it('renders error alert correctly', () => {
+        (useContentProvider as jest.Mock).mockReturnValue({
+            fcrmAlert: {
+                status: 'error',
+                message: 'An error occurred.',
+            },
+            updateFcrmAlerts: mockUpdateFcrmAlerts,
+        });
+
+        render(<Alerts />);
+
+        expect(screen.getByText(/Error:/i)).toBeInTheDocument();
+        expect(screen.getByText(/An error occurred./i)).toBeInTheDocument();
+        expect(screen.getByLabelText(/error icon label/i)).toBeInTheDocument();
+    });
+
+    it('dismisses the alert when the dismiss button is clicked', () => {
+        (useContentProvider as jest.Mock).mockReturnValue({
+            fcrmAlert: {
+                status: 'success',
+                message: 'Operation completed successfully.',
+            },
+            updateFcrmAlerts: mockUpdateFcrmAlerts,
+        });
+
+        render(<Alerts />);
+
+        // Click the dismiss button
+        fireEvent.click(screen.getByRole('button')); // Assuming the dismiss button is a button element
+
+        expect(mockUpdateFcrmAlerts).toHaveBeenCalledWith(undefined); // Check that the update function was called
+    });
+
+    it('does not render alert if there is no alert status', () => {
+        (useContentProvider as jest.Mock).mockReturnValue({
+            fcrmAlert: undefined,
+            updateFcrmAlerts: mockUpdateFcrmAlerts,
+        });
+
+        render(<Alerts />);
+
+        expect(screen.queryByText(/Success:/i)).not.toBeInTheDocument();
+        expect(screen.queryByText(/Error:/i)).not.toBeInTheDocument();
+    });
+});
+=============================================================
 it('should handle adding to an empty list', () => {
             const updatedRiskItems = addRiskItem(riskLevel, riskName, riskType, riskItems);
             const newList = updatedRiskItems.get(riskLevel);
