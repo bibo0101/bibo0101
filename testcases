@@ -1,5 +1,63 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import AttestationPanel from './AttestationPanel'; // Adjust the import path as necessary
+import Alerts from './Alerts'; // Import other components as needed
+import { updateRiskItemArray } from './riskFunctions'; // Import functions as needed
+
+// Mock the necessary functions and components
+jest.mock('./path/to/your/hooks/useContentProvider', () => ({
+    useContentProvider: jest.fn(),
+}));
+
+const mockStore = configureStore([]);
+
+describe('Combined Component Tests', () => {
+    let store;
+
+    beforeEach(() => {
+        store = mockStore({
+            // Add any necessary initial state here
+        });
+    });
+
+    it('renders AttestationPanel and Alerts correctly', () => {
+        // Test AttestationPanel
+        render(
+            <Provider store={store}>
+                <AttestationPanel readOnly={false} />
+            </Provider>
+        );
+
+        expect(screen.getByText(/Attestation/i)).toBeInTheDocument(); // Adjust based on your component's content
+
+        // Test Alerts
+        render(
+            <Provider store={store}>
+                <Alerts />
+            </Provider>
+        );
+
+        expect(screen.queryByText(/Success:/i)).not.toBeInTheDocument(); // Adjust based on your component's content
+    });
+
+    it('updates risk items correctly', () => {
+        const riskItem = { riskName: 'Risk A', overridden: true };
+        const riskItemArray = [{ riskName: 'Risk B', overridden: false }];
+
+        const updatedArray = updateRiskItemArray(riskItem, riskItemArray);
+        expect(updatedArray).toEqual([
+            { riskName: 'Risk B', overridden: false },
+            { riskName: 'Risk A', overridden: true },
+        ]);
+    });
+
+    // Add more test cases as needed
+});
+===================================================================
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
 import { useContentProvider } from '../../hooks/useContentProvider';
 import Alerts from './Alerts'; // Adjust the import path as necessary
 
