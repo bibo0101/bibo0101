@@ -1,4 +1,42 @@
+import React from 'react';
+import { render, screen, fireEvent, act } from '@testing-library/react';
+import ReviewAndAttest from './ReviewAndAttest';
+import { useApiProvider } from './../../../hooks/useApiProvider';
 
+// Mock the useApiProvider hook
+vi.mock('./../../../hooks/useApiProvider', () => ({
+    useApiProvider: vi.fn(), // Create a mock function
+}));
+
+// Mock the Icon component if it's used in ReviewAndAttest
+vi.mock('@barclays/blueprint-react', () => ({
+    Icon: ({ ariaLabel }) => <span aria-label={ariaLabel}>Mocked Icon</span>, // Mocking the Icon component
+}));
+
+describe('ReviewAndAttest Component', () => {
+    it('renders the Review & Attest button', async () => {
+        const mockReviewAndAttestData = vi.fn(); // Create a mock function
+        // Set the return value for the mocked useApiProvider
+        useApiProvider.mockReturnValue({
+            reviewAndAttestData: mockReviewAndAttestData,
+        });
+
+        // Use act to wrap the render call
+        await act(async () => {
+            render(<ReviewAndAttest />);
+        });
+
+        // Check if the button is in the document
+        const buttonElement = screen.getByText(/Review & Attest/i);
+        expect(buttonElement).toBeInTheDocument();
+
+        // Optionally, check if the button click calls the mock function
+        await act(async () => {
+            fireEvent.click(buttonElement);
+        });
+        expect(mockReviewAndAttestData).toHaveBeenCalled();
+    });
+});
 =============================================================Rieview nd attest
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
