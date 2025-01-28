@@ -1,3 +1,8 @@
+vi.mock('@barclays/blueprint-react', () => ({
+    Icon: vi.fn(({ ariaLabel }) => <span aria-label={ariaLabel}>Mocked Icon</span>), // Mocking the Icon component
+    Panel: vi.fn(({ children }) => <div>{children}</div>), // Mocking the Panel component
+}));
+====================================================================
 import React from 'react';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import ReviewAndAttest from './ReviewAndAttest';
