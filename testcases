@@ -1,4 +1,85 @@
 import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom'; // For additional matchers
+import Alerts from './Alerts'; // Path to your component
+import { useContentProvider } from '../../hooks/useContentProvider';
+
+// Mock the `useContentProvider` hook
+jest.mock('../../hooks/useContentProvider');
+
+describe('Alerts Component', () => {
+  const mockUpdateFcrmAlerts = jest.fn();
+
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('should render success alert with correct message and icon', () => {
+    // Mock the `contentProvider` hook response
+    (useContentProvider as jest.Mock).mockReturnValue({
+      fcrmAlert: { status: 'success', message: 'Operation was successful' },
+      updateFcrmAlerts: mockUpdateFcrmAlerts,
+    });
+
+    render(<Alerts />);
+
+    // Verify the heading
+    expect(screen.getByText('Success')).toBeInTheDocument();
+
+    // Verify the success icon
+    expect(screen.getByLabelText('success icon label')).toBeInTheDocument();
+
+    // Verify the message
+    expect(screen.getByText('Operation was successful')).toBeInTheDocument();
+
+    // Verify the `onDismiss` functionality
+    const dismissButton = screen.getByRole('button');
+    fireEvent.click(dismissButton);
+
+    expect(mockUpdateFcrmAlerts).toHaveBeenCalledWith(undefined);
+  });
+
+  test('should render error alert with correct message and icon', () => {
+    // Mock the `contentProvider` hook response
+    (useContentProvider as jest.Mock).mockReturnValue({
+      fcrmAlert: { status: 'error', message: 'Something went wrong' },
+      updateFcrmAlerts: mockUpdateFcrmAlerts,
+    });
+
+    render(<Alerts />);
+
+    // Verify the heading
+    expect(screen.getByText('Error')).toBeInTheDocument();
+
+    // Verify the error icon
+    expect(screen.getByLabelText('error icon label')).toBeInTheDocument();
+
+    // Verify the message
+    expect(screen.getByText('Something went wrong')).toBeInTheDocument();
+
+    // Verify the `onDismiss` functionality
+    const dismissButton = screen.getByRole('button');
+    fireEvent.click(dismissButton);
+
+    expect(mockUpdateFcrmAlerts).toHaveBeenCalledWith(undefined);
+  });
+
+  test('should not render if `fcrmAlert` is undefined', () => {
+    // Mock the `contentProvider` hook response with no alert
+    (useContentProvider as jest.Mock).mockReturnValue({
+      fcrmAlert: undefined,
+      updateFcrmAlerts: mockUpdateFcrmAlerts,
+    });
+
+    const { container } = render(<Alerts />);
+
+    // Verify that the component does not render anything
+    expect(container).toBeEmptyDOMElement();
+  });
+});
+
+========================================================
+import React from 'react';
 import { render, screen } from '@testing-library/react';
 import Alerts from '../path/to/Alerts'; // Adjust the import path as necessary
 
