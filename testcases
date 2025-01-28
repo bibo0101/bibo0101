@@ -1,3 +1,28 @@
+import { render, screen, fireEvent } from '@testing-library/react';
+import { vi } from 'vitest';
+import MyComponent from './MyComponent'; // Adjust the import path as necessary
+
+// Mocking a child component
+vi.mock('./ChildComponent', () => {
+    return {
+        __esModule: true,
+        default: () => <div>Mocked Child Component</div>,
+    };
+});
+
+describe('MyComponent', () => {
+    it('renders correctly', () => {
+        render(<MyComponent />);
+        expect(screen.getByText('Mocked Child Component')).toBeInTheDocument();
+    });
+
+    it('handles button click', () => {
+        render(<MyComponent />);
+        fireEvent.click(screen.getByRole('button', { name: /click me/i }));
+        expect(screen.getByText('Button Clicked')).toBeInTheDocument();
+    });
+});
+============================================
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { useContentProvider } from '../../hooks/useContentProvider';
