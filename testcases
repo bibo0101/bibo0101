@@ -1,3 +1,82 @@
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import AttestationPanel from './AttestationPanel';
+import { updateFcrmAttestation } from '../../../redux/slices/fcrmAttestationSlice';
+import { getUserInfo } from '../../helpers/userDetails';
+
+// Mock Redux action and user info
+jest.mock('../../../redux/slices/fcrmAttestationSlice', () => ({
+    updateFcrmAttestation: jest.fn(),
+}));
+
+jest.mock('../../helpers/userDetails', () => ({
+    getUserInfo: jest.fn(),
+}));
+
+const mockStore = configureStore([]);
+
+describe('AttestationPanel Component', () => {
+    let store;
+
+    beforeEach(() => {
+        store = mockStore({
+            riskScore: {
+                baseRiskScore: 100,
+                overriddenRiskScore: 80,
+            },
+            attestationData: {
+                attestedByName: '',
+                attestedByBrid: '',
+            },
+        });
+    });
+
+    it('renders correctly when readOnly is true', () => {
+        render(
+            <Provider store={store}>
+                <AttestationPanel readOnly={true} />
+            </Provider>
+        );
+
+        expect(screen.getByText(/Attestation/i)).toBeInTheDocument();
+        expect(screen.getByText(/You requested a Risk Rating change from:/i)).toBeInTheDocument();
+        expect(screen.getByText(/Risk Rating for party is:/i)).toBeInTheDocument();
+    });
+
+    it('dispatches updateFcrmAttestation when attest button is clicked', () => {
+        render(
+            <Provider store={store}>
+                <AttestationPanel readOnly={false} />
+            </Provider>
+        );
+
+        fireEvent.click(screen.getByTestId('attest-button'));
+
+        expect(updateFcrmAttestation).toHaveBeenCalled();
+    });
+
+    it('dispatches updateFcrmAttestation with user data', () => {
+        (getUserInfo as jest.Mock).mockReturnValue({ userName: 'John Doe', userBrid: '12345' });
+
+        render(
+            <Provider store={store}>
+                <AttestationPanel readOnly={false} />
+            </Provider>
+        );
+
+        fireEvent.click(screen.getByTestId('override-button'));
+
+        expect(updateFcrmAttestation).toHaveBeenCalledWith(expect.objectContaining({
+            attestedByName: 'John Doe',
+            attestedByBrid: '12345',
+        }));
+    });
+});
+
+
+===============================================================
 import { getAttestationWithUserData } from './attestationUtils';
 import { getUserInfo } from '../../helpers/userDetails';
 
