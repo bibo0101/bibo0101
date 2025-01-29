@@ -1,3 +1,8 @@
+const errorMessage = screen.getByText((_, element) => 
+  element?.textContent?.includes("errors to resolve before you can proceed")
+);
+
+
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
