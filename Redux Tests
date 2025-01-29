@@ -1,3 +1,70 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import ErrorPanel from './ErrorPanel'; // Adjust the import path as necessary
+import { useSelector } from 'react-redux';
+
+// Mock the useSelector hook
+vi.mock('react-redux', () => ({
+    ...vi.importActual('react-redux'),
+    useSelector: vi.fn(),
+}));
+
+describe('ErrorPanel Component', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('displays errors for mainForm route', () => {
+        (useSelector as jest.Mock)
+            .mockReturnValueOnce(['Field 1', 'Field 2']) // Mock invalid sections
+            .mockReturnValueOnce([]); // Mock invalid override sections
+
+        render(
+            <MemoryRouter initialEntries={['/mainForm']}>
+                <ErrorPanel />
+            </MemoryRouter>
+        );
+
+        // Check if the error message is displayed using data-testid
+        expect(screen.getByTestId('error-message')).toBeInTheDocument();
+        expect(screen.getByText(/2 errors to resolve before you can attest & submit/i)).toBeInTheDocument();
+        expect(screen.getByTestId('invalid-field-0')).toHaveTextContent('Field 1');
+        expect(screen.getByTestId('invalid-field-1')).toHaveTextContent('Field 2');
+    });
+
+    it('displays errors for override page route', () => {
+        (useSelector as jest.Mock)
+            .mockReturnValueOnce([]) // Mock invalid sections
+            .mockReturnValueOnce(['Override Field 1', 'Override Field 2']); // Mock invalid override sections
+
+        render(
+            <MemoryRouter initialEntries={['/overridePage']}>
+                <ErrorPanel />
+            </MemoryRouter>
+        );
+
+        // Check if the error message is displayed using data-testid
+        expect(screen.getByTestId('error-message')).toBeInTheDocument();
+        expect(screen.getByText(/2 errors to resolve before you can proceed/i)).toBeInTheDocument();
+        expect(screen.getByTestId('invalid-field-0')).toHaveTextContent('Override Field 1');
+        expect(screen.getByTestId('invalid-field-1')).toHaveTextContent('Override Field 2');
+    });
+
+    it('renders nothing when there are no errors', () => {
+        (useSelector as jest.Mock).mockReturnValue([]); // No invalid sections
+
+        render(
+            <MemoryRouter initialEntries={['/mainForm']}>
+                <ErrorPanel />
+            </MemoryRouter>
+        );
+
+        // Check that no error message is displayed
+        expect(screen.queryByTestId('error-panel')).not.toBeInTheDocument();
+    });
+});
+================================================================
 const errorMessage = screen.getByText((_, element) => 
   element?.textContent?.includes("errors to resolve before you can proceed")
 );
