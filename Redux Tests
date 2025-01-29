@@ -1,0 +1,45 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import AttestationPanel from './AttestationPanel';
+
+// Create a mock Redux store
+const mockStore = configureStore([]);
+
+describe('AttestationPanel Component', () => {
+    let store;
+
+    beforeEach(() => {
+        store = mockStore({
+            riskScore: {
+                baseRiskScore: 100,
+                overriddenRiskScore: 80,
+            },
+            attestationData: {
+                attestedByName: '',
+                attestedByBrid: '',
+            },
+            fcrmMetaData: {
+                metaData: {
+                    id: 'meta123',
+                    name: 'FCRM Metadata',
+                    description: 'Sample metadata for testing',
+                },
+                isFormReadOnly: false,
+            },
+        });
+    });
+
+    it('should render without crashing', () => {
+        render(
+            <Provider store={store}>
+                <AttestationPanel readOnly={false} />
+            </Provider>
+        );
+
+        expect(screen.getByText(/Attestation/i)).toBeInTheDocument();
+        expect(screen.getByText(/Risk Rating for party is:/i)).toBeInTheDocument();
+        expect(screen.getByText('FCRM Metadata')).toBeInTheDocument(); // Check if metadata is displayed
+    });
+});
