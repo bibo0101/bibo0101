@@ -1,6 +1,86 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import { MemoryRouter } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import ErrorPanel from './ErrorPanel'; // Adjust the import path as necessary
+
+// Mock the useSelector hook
+jest.mock('react-redux', () => ({
+    ...jest.requireActual('react-redux'),
+    useSelector: jest.fn(),
+}));
+
+describe('ErrorPanel Component', () => {
+    beforeEach(() => {
+        // Clear all instances and calls to the mock
+        jest.clearAllMocks();
+    });
+
+    it('renders without crashing', () => {
+        (useSelector as jest.Mock).mockReturnValue([]); // No invalid sections
+
+        render(
+            <MemoryRouter initialEntries={['/mainForm']}>
+                <ErrorPanel />
+            </MemoryRouter>
+        );
+
+        // Check if the component renders without crashing
+        expect(screen.queryByText(/errors to resolve/i)).not.toBeInTheDocument();
+    });
+
+    it('displays errors for mainForm route', () => {
+        (useSelector as jest.Mock)
+            .mockReturnValueOnce(['Field 1', 'Field 2']) // Mock invalid sections for mainForm
+            .mockReturnValueOnce([]); // Mock invalid override sections
+
+        render(
+            <MemoryRouter initialEntries={['/mainForm']}>
+                <ErrorPanel />
+            </MemoryRouter>
+        );
+
+        // Check if the error message is displayed
+        expect(screen.getByText(/2 errors to resolve before you can attest & submit/i)).toBeInTheDocument();
+        expect(screen.getByText(/Field 1/i)).toBeInTheDocument();
+        expect(screen.getByText(/Field 2/i)).toBeInTheDocument();
+    });
+
+    it('displays errors for override page route', () => {
+        (useSelector as jest.Mock)
+            .mockReturnValueOnce([]) // Mock invalid sections
+            .mockReturnValueOnce(['Override Field 1', 'Override Field 2']); // Mock invalid override sections
+
+        render(
+            <MemoryRouter initialEntries={['/overridePage']}>
+                <ErrorPanel />
+            </MemoryRouter>
+        );
+
+        // Check if the error message is displayed
+        expect(screen.getByText(/2 errors to resolve before you can proceed/i)).toBeInTheDocument();
+        expect(screen.getByText(/Override Field 1/i)).toBeInTheDocument();
+        expect(screen.getByText(/Override Field 2/i)).toBeInTheDocument();
+    });
+
+    it('renders nothing when there are no errors', () => {
+        (useSelector as jest.Mock).mockReturnValue([]); // No invalid sections
+
+        render(
+            <MemoryRouter initialEntries={['/mainForm']}>
+                <ErrorPanel />
+            </MemoryRouter>
+        );
+
+        // Check that no error message is displayed
+        expect(screen.queryByText(/errors to resolve/i)).not.toBeInTheDocument();
+    });
+});
+======================================================================
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { MemoryRouter, Route } from 'react-router-dom';
 import ErrorPanel from './ErrorPanel'; // Adjust the import path as necessary
