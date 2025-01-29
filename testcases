@@ -1,3 +1,33 @@
+import { getAttestationWithUserData } from './attestationUtils';
+import { getUserInfo } from '../../helpers/userDetails';
+
+// Mock getUserInfo function
+jest.mock('../../helpers/userDetails', () => ({
+    getUserInfo: jest.fn(),
+}));
+
+describe('getAttestationWithUserData', () => {
+    it('returns original attestation data if no user data', () => {
+        (getUserInfo as jest.Mock).mockReturnValue(undefined);
+
+        const attestationData = { attestedByName: '', attestedByBrid: '' };
+        const result = getAttestationWithUserData(attestationData);
+
+        expect(result).toEqual(attestationData);
+    });
+
+    it('adds user data to attestationData', () => {
+        (getUserInfo as jest.Mock).mockReturnValue({ userName: 'John Doe', userBrid: '12345' });
+
+        const attestationData = { attestedByName: '', attestedByBrid: '' };
+        const result = getAttestationWithUserData(attestationData);
+
+        expect(result.attestedByName).toBe('John Doe');
+        expect(result.attestedByBrid).toBe('12345');
+    });
+});
+
+------------------------------------------------------------------------
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
