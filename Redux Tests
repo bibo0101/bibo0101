@@ -2,6 +2,117 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
+import { MemoryRouter, Route } from 'react-router-dom';
+import ErrorPanel from './ErrorPanel'; // Adjust the import path as necessary
+import { getInvalidSections, getInvalidOverrideValidationSections } from '../../redux/selectors/generalData';
+
+// Create a mock store
+const mockStore = configureStore([]);
+
+describe('ErrorPanel Component', () => {
+    let store;
+
+    beforeEach(() => {
+        // Create a new store instance before each test
+        store = mockStore({
+            generalData: {
+                invalidSections: [], // Default to no invalid sections
+                invalidOverrideValidationSections: [], // Default to no invalid override sections
+            },
+        });
+    });
+
+    it('renders without crashing', () => {
+        render(
+            <Provider store={store}>
+                <MemoryRouter initialEntries={['/mainForm']}>
+                    <ErrorPanel />
+                </MemoryRouter>
+            </Provider>
+        );
+
+        // Check if the component renders without crashing
+        expect(screen.getByText(/errors to resolve/i)).toBeInTheDocument();
+    });
+
+    it('displays errors for mainForm route', () => {
+        store = mockStore({
+            generalData: {
+                invalidSections: ['Field 1', 'Field 2'], // Mock invalid sections
+                invalidOverrideValidationSections: [],
+            },
+        });
+
+        render(
+            <Provider store={store}>
+                <MemoryRouter initialEntries={['/mainForm']}>
+                    <ErrorPanel />
+                </MemoryRouter>
+            </Provider>
+        );
+
+        // Check if the error message is displayed
+        expect(screen.getByText(/2 errors to resolve before you can attest & submit/i)).toBeInTheDocument();
+        expect(screen.getByText(/Field 1/i)).toBeInTheDocument();
+        expect(screen.getByText(/Field 2/i)).toBeInTheDocument();
+    });
+
+    it('displays errors for override page route', () => {
+        store = mockStore({
+            generalData: {
+                invalidSections: [],
+                invalidOverrideValidationSections: ['Override Field 1', 'Override Field 2'], // Mock invalid override sections
+            },
+        });
+
+        render(
+            <Provider store={store}>
+                <MemoryRouter initialEntries={['/overridePage']}>
+                    <ErrorPanel />
+                </MemoryRouter>
+            </Provider>
+        );
+
+        // Check if the error message is displayed
+        expect(screen.getByText(/2 errors to resolve before you can proceed/i)).toBeInTheDocument();
+        expect(screen.getByText(/Override Field 1/i)).toBeInTheDocument();
+        expect(screen.getByText(/Override Field 2/i)).toBeInTheDocument();
+    });
+
+    it('renders nothing when there are no errors', () => {
+        render(
+            <Provider store={store}>
+                <MemoryRouter initialEntries={['/mainForm']}>
+                    <ErrorPanel />
+                </MemoryRouter>
+            </Provider>
+        );
+
+        // Check that no error message is displayed
+        expect(screen.queryByText(/errors to resolve/i)).not.toBeInTheDocument();
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+==============================================================
+
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
 import AttestationPanel from './AttestationPanel';
 
 // Create a mock Redux store
