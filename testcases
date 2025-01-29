@@ -1,3 +1,52 @@
+import { configureStore } from '@reduxjs/toolkit';
+import { vi } from 'vitest';
+import { Provider } from 'react-redux';
+import { render } from '@testing-library/react';
+import AttestationPanel from './AttestationPanel';
+
+// Mock the actual Redux slice
+const mockInitialState = {
+  fcrmAttestation: {
+    data: [], // Ensure this matches your actual state structure
+    loading: false,
+    error: null,
+  },
+};
+
+const mockReducer = vi.fn().mockImplementation((state = mockInitialState, action) => state);
+
+// Mock Redux actions
+vi.mock('../../../redux/slices/fcrmAttestationSlice', () => ({
+  updateFcrmAttestation: vi.fn(),
+}));
+
+vi.mock('../../helpers/userDetails', () => ({
+  getUserInfo: vi.fn().mockReturnValue({ name: 'Test User' }),
+}));
+
+describe('AttestationPanel Component', () => {
+  let store;
+
+  beforeEach(() => {
+    store = configureStore({
+      reducer: {
+        fcrmAttestation: mockReducer, // Ensure reducer matches actual slice name
+      },
+      preloadedState: mockInitialState, // Ensure store has initial state
+    });
+  });
+
+  it('should render without crashing', () => {
+    const { getByText } = render(
+      <Provider store={store}>
+        <AttestationPanel />
+      </Provider>
+    );
+    expect(getByText('AttestationPanel')).toBeInTheDocument(); // Adjust text as needed
+  });
+});
+
+=================================================================
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
