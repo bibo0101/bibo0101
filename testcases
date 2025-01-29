@@ -1,3 +1,82 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import RiskScoreContainer from './RiskScoreContainer'; // Adjust the import path as necessary
+import { RiskScore } from 'src/interfaces/ReduxStore'; // Adjust the import path as necessary
+import { getRiskRating } from 'src/redux/selectors/riskDataSelectors'; // Adjust the import path as necessary
+
+// Create a mock store
+const mockStore = configureStore([]);
+
+describe('RiskScoreContainer Component', () => {
+    let store;
+
+    beforeEach(() => {
+        // Create a new store instance before each test
+        store = mockStore({
+            riskData: {
+                riskRating: {
+                    overriddenRiskScore: 75, // Example risk score
+                } as RiskScore,
+            },
+        });
+    });
+
+    it('renders the Risk Score Container correctly', () => {
+        render(
+            <Provider store={store}>
+                <RiskScoreContainer />
+            </Provider>
+        );
+
+        // Check if the Risk Score title is rendered
+        expect(screen.getByText(/Risk Score/i)).toBeInTheDocument();
+    });
+
+    it('displays the correct risk score', () => {
+        render(
+            <Provider store={store}>
+                <RiskScoreContainer />
+            </Provider>
+        );
+
+        // Check if the RiskScoreDisplay component receives the correct risk score
+        expect(screen.getByText(/75/i)).toBeInTheDocument(); // Assuming RiskScoreDisplay renders the score as text
+    });
+
+    it('handles undefined risk score', () => {
+        // Update the store to simulate an undefined risk score
+        store = mockStore({
+            riskData: {
+                riskRating: {
+                    overriddenRiskScore: undefined, // Simulate undefined risk score
+                } as RiskScore,
+            },
+        });
+
+        render(
+            <Provider store={store}>
+                <RiskScoreContainer />
+            </Provider>
+        );
+
+        // Check if the RiskScoreDisplay component receives a default value (0)
+        expect(screen.getByText(/0/i)).toBeInTheDocument(); // Assuming RiskScoreDisplay renders 0 when score is undefined
+    });
+});
+
+
+
+
+
+
+
+
+
+
+=========================================================================
+
 vi.mock('@barclays/blueprint-react', () => ({
     Icon: vi.fn(({ ariaLabel }) => <span aria-label={ariaLabel}>Mocked Icon</span>), // Mocking the Icon component
     Panel: vi.fn(({ children }) => <div>{children}</div>), // Mocking the Panel component
