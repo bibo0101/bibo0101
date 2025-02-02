@@ -1,1 +1,79 @@
+import { render, fireEvent } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import AttestationPanel from './AttestationPanel'; // Adjust the import path as necessary
 
+// Mock the necessary functions and data
+vi.mock('../../helpers/userDetails', () => ({
+  getUser Info: vi.fn(() => ({
+    userName: 'Test User',
+    userBrid: '12345',
+  })),
+}));
+
+describe('AttestationPanel', () => {
+  const mockUpdateFcrmAttestation = vi.fn();
+
+  const defaultProps = {
+    readOnly: false,
+    riskScore: {
+      baseRiskScore: 1,
+      overriddenRiskScore: 2,
+    },
+    attestationData: {
+      attested: false,
+      overrideConfirmation: false,
+    },
+    isAnyOverrides: false,
+    fcrmStatus: 'In Progress',
+    updateFcrmAttestation: mockUpdateFcrmAttestation,
+  };
+
+  it('renders correctly and handles attestation and override changes', () => {
+    const { getByLabelText, getByText } = render(<AttestationPanel {...defaultProps} />);
+
+    // Check if the component renders the correct text
+    expect(getByText(/Attestation/i)).toBeInTheDocument();
+    expect(getByText(/You requested a Risk Rating change from/i)).toBeInTheDocument();
+    expect(getByText(/Risk Rating for party is:/i)).toBeInTheDocument();
+
+    // Check the initial state of the checkboxes
+    const overrideCheckbox = getByLabelText(/I confirm that I wish to override\/discount risk factor\(s\)/i);
+    const attestationCheckbox = getByLabelText(/I have answered to the best of my knowledge and mark this/i);
+
+    expect(overrideCheckbox).not.toBeChecked();
+    expect(attestationCheckbox).not.toBeChecked();
+
+    // Simulate checking the override checkbox
+    fireEvent.click(overrideCheckbox);
+    expect(overrideCheckbox).toBeChecked();
+    expect(mockUpdateFcrmAttestation).toHaveBeenCalled(); // Check if the update function was called
+
+    // Simulate checking the attestation checkbox
+    fireEvent.click(attestationCheckbox);
+    expect(attestationCheckbox).toBeChecked();
+    expect(mockUpdateFcrmAttestation).toHaveBeenCalled(); // Check if the update function was called
+
+    // Simulate unchecking the attestation checkbox
+    fireEvent.click(attestationCheckbox);
+    expect(attestationCheckbox).not.toBeChecked();
+    expect(mockUpdateFcrmAttestation).toHaveBeenCalled(); // Check if the update function was called
+  });
+
+  it('handles readOnly state correctly', () => {
+    const { getByLabelText } = render(<AttestationPanel {...{ ...defaultProps, readOnly: true }} />);
+
+    const overrideCheckbox = getByLabelText(/I confirm that I wish to override\/discount risk factor\(s\)/i);
+    const attestationCheckbox = getByLabelText(/I have answered to the best of my knowledge and mark this/i);
+
+    // Check that checkboxes are disabled
+    expect(overrideCheckbox).toBeDisabled();
+    expect(attestationCheckbox).toBeDisabled();
+  });
+
+  it('handles user data correctly', () => {
+    const { getByText } = render(<AttestationPanel {...defaultProps} />);
+
+    // Check if the user data is reflected in the attestation
+    expect(getByText(/Test User/i)).toBeInTheDocument();
+  });
+});
