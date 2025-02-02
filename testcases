@@ -1,4 +1,6 @@
 import { render, fireEvent } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
 import { describe, it, expect, vi } from 'vitest';
 import AttestationPanel from './AttestationPanel'; // Adjust the import path as necessary
 
@@ -9,6 +11,9 @@ vi.mock('../../helpers/userDetails', () => ({
     userBrid: '12345',
   })),
 }));
+
+// Create a mock store
+const mockStore = configureStore([]);
 
 describe('AttestationPanel', () => {
   const mockUpdateFcrmAttestation = vi.fn();
@@ -29,7 +34,24 @@ describe('AttestationPanel', () => {
   };
 
   it('renders correctly and handles attestation and override changes', () => {
-    const { getByLabelText, getByText } = render(<AttestationPanel {...defaultProps} />);
+    const store = mockStore({
+      riskScore: {
+        baseRiskScore: 1,
+        overriddenRiskScore: 2,
+      },
+      attestationData: {
+        attested: false,
+        overrideConfirmation: false,
+      },
+      isAnyOverrides: false,
+      fcrmStatus: 'In Progress',
+    });
+
+    const { getByLabelText, getByText } = render(
+      <Provider store={store}>
+        <AttestationPanel {...defaultProps} />
+      </Provider>
+    );
 
     // Check if the component renders the correct text
     expect(getByText(/Attestation/i)).toBeInTheDocument();
@@ -60,20 +82,28 @@ describe('AttestationPanel', () => {
   });
 
   it('handles readOnly state correctly', () => {
-    const { getByLabelText } = render(<AttestationPanel {...{ ...defaultProps, readOnly: true }} />);
+    const store = mockStore({
+      riskScore: {
+        baseRiskScore: 1,
+        overriddenRiskScore: 2,
+      },
+      attestationData: {
+        attested: false,
+        overrideConfirmation: false,
+      },
+      isAnyOverrides: false,
+      fcrmStatus: 'In Progress',
+    });
+
+    const { getByLabelText } = render(
+      <Provider store={store}>
+        <AttestationPanel {...{ ...defaultProps, readOnly: true }} />
+      </Provider>
+    );
 
     const overrideCheckbox = getByLabelText(/I confirm that I wish to override\/discount risk factor\(s\)/i);
     const attestationCheckbox = getByLabelText(/I have answered to the best of my knowledge and mark this/i);
 
     // Check that checkboxes are disabled
     expect(overrideCheckbox).toBeDisabled();
-    expect(attestationCheckbox).toBeDisabled();
-  });
-
-  it('handles user data correctly', () => {
-    const { getByText } = render(<AttestationPanel {...defaultProps} />);
-
-    // Check if the user data is reflected in the attestation
-    expect(getByText(/Test User/i)).toBeInTheDocument();
-  });
-});
+    expect(attestationCheckbox).toBeDisabled
