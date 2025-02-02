@@ -1,3 +1,21 @@
+import { render } from '@testing-library/react';
+import { describe, it, expect } from 'vitest';
+import MyComponent from './MyComponent'; // Adjust the import path as necessary
+
+describe('MyComponent', () => {
+  it('renders the check icon correctly', () => {
+    const { getByRole } = render(<MyComponent iconId="check" />);
+    
+    // Check if the icon is rendered
+    const icon = getByRole('img'); // Assuming the icon is rendered as an img
+    expect(icon).toBeInTheDocument();
+  });
+
+  it('throws an error for an unknown icon', () => {
+    expect(() => render(<MyComponent iconId="unknown" />)).toThrowError(/No icon found for unknown/);
+  });
+});
+=========================================================
 import { render, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
