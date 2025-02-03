@@ -1,3 +1,14 @@
+import { render, screen } from "@testing-library/react";
+import AttestationPanel from "../AttestationPanel";
+
+test("renders multiple Blueprint icons correctly", () => {
+  render(<AttestationPanel />);
+
+  expect(screen.getByTestId("mock-icon-tick-circle")).toBeInTheDocument();
+  expect(screen.getByTestId("mock-icon-warning-sign")).toBeInTheDocument();
+});
+
+-=================================================
 (global as any).iconSet = {
   1776: 'tick',
   1777: 'success',
