@@ -1,3 +1,29 @@
+// Assuming you are using Font Awesome
+import { render } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import MyComponent from './MyComponent'; // Adjust the import path as necessary
+
+// Mock the icon library
+vi.mock('@fortawesome/react-fontawesome', () => ({
+  FontAwesomeIcon: ({ icon }) => <span>{icon.iconName}</span>, // Mock implementation
+}));
+
+describe('MyComponent', () => {
+  it('renders correctly with a valid icon', () => {
+    const { getByText } = render(<MyComponent iconId="check" />);
+    
+    // Check if the icon is rendered
+    expect(getByText('check')).toBeInTheDocument();
+  });
+
+  it('handles unknown icons gracefully', () => {
+    const { getByText } = render(<MyComponent iconId="unknown" />);
+    
+    // Check if a fallback or error message is rendered
+    expect(getByText('unknown')).toBeInTheDocument(); // Adjust based on your mock implementation
+  });
+});
+=======================================
 import { render } from '@testing-library/react';
 import { describe, it, expect } from 'vitest';
 import MyComponent from './MyComponent'; // Adjust the import path as necessary
