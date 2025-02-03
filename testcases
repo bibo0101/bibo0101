@@ -1,3 +1,34 @@
+import React from "react";
+import { render, screen } from "@testing-library/react";
+import { Provider } from "react-redux";
+import store from "path-to-your-store"; // Import your actual Redux store
+import AttestationPanel from "path-to-your-component/AttestationPanel";
+
+describe("AttestationPanel Component", () => {
+  test("renders AttestationPanel without crashing", () => {
+    render(
+      <Provider store={store}>
+        <AttestationPanel />
+      </Provider>
+    );
+
+    // Example assertion: Check if heading is present
+    expect(screen.getByText(/Attestation Panel/i)).toBeInTheDocument();
+  });
+
+  test("renders a tick icon when conditions are met", () => {
+    render(
+      <Provider store={store}>
+        <AttestationPanel />
+      </Provider>
+    );
+
+    const tickIcon = screen.queryByTestId("tick-icon"); // Ensure the icon has data-testid="tick-icon"
+    expect(tickIcon).toBeInTheDocument();
+  });
+});
+
+====================================
 import { render, fireEvent, act } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { describe, it, expect, vi } from 'vitest';
