@@ -1,3 +1,88 @@
+import { render, fireEvent } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { store } from './store'; // Adjust the import path to your actual store file
+import { describe, it, expect, vi } from 'vitest';
+import AttestationPanel from './AttestationPanel'; // Adjust the import path as necessary
+
+// Mock the necessary functions and data
+vi.mock('../../helpers/userDetails', () => ({
+  getUserInfo: vi.fn(() => ({
+    userName: 'Test User',
+    userBrid: '12345',
+  })),
+}));
+
+describe('AttestationPanel', () => {
+  const mockUpdateFcrmAttestation = vi.fn();
+
+  const defaultProps = {
+    readOnly: false,
+    updateFcrmAttestation: mockUpdateFcrmAttestation,
+  };
+
+  it('sets attestation correctly', () => {
+    const { getByLabelText } = render(
+      <Provider store={store}>
+        <AttestationPanel {...defaultProps} />
+      </Provider>
+    );
+
+    const attestationCheckbox = getByLabelText(/I have answered to the best of my knowledge/i);
+    
+    // Initially, the checkbox should be unchecked
+    expect(attestationCheckbox).not.toBeChecked();
+
+    // Check the checkbox
+    fireEvent.click(attestationCheckbox);
+    expect(attestationCheckbox).toBeChecked();
+    expect(mockUpdateFcrmAttestation).toHaveBeenCalledWith(true, false); // Check if the update function was called with correct parameters
+
+    // Uncheck the checkbox
+    fireEvent.click(attestationCheckbox);
+    expect(attestationCheckbox).not.toBeChecked();
+    expect(mockUpdateFcrmAttestation).toHaveBeenCalledWith(false, false); // Check if the update function was called with correct parameters
+  });
+
+  it('sets override attestation correctly', () => {
+    const { getByLabelText } = render(
+      <Provider store={store}>
+        <AttestationPanel {...defaultProps} />
+      </Provider>
+    );
+
+    const overrideCheckbox = getByLabelText(/I confirm that I wish to override\/discount risk factor\(s\)/i);
+    
+    // Initially, the checkbox should be unchecked
+    expect(overrideCheckbox).not.toBeChecked();
+
+    // Check the checkbox
+    fireEvent.click(overrideCheckbox);
+    expect(overrideCheckbox).toBeChecked();
+    expect(mockUpdateFcrmAttestation).toHaveBeenCalledWith(false, true); // Check if the update function was called with correct parameters
+
+    // Uncheck the checkbox
+    fireEvent.click(overrideCheckbox);
+    expect(overrideCheckbox).not.toBeChecked();
+    expect(mockUpdateFcrmAttestation).toHaveBeenCalledWith(false, false); // Check if the update function was called with correct parameters
+  });
+
+  it('returns correct attestation data', () => {
+    const { result } = render(
+      <Provider store={store}>
+        <AttestationPanel {...defaultProps} />
+      </Provider>
+    );
+
+    // Access the instance of the component to call the method directly
+    const attestationData = result.current.getAttestationWithUserData();
+    
+    expect(attestationData).toEqual({
+      attested: false,
+      overrideConfirmation: false,
+    });
+  });
+});
+===================================================
 import { render, screen } from "@testing-library/react";
 import AttestationPanel from "../AttestationPanel";
 
