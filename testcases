@@ -1,3 +1,67 @@
+
+
+
+import { render, screen, waitFor } from "@testing-library/react";
+import Alerts from "../path-to-alerts-component/Alerts";
+import { useContentProvider } from "../../hooks/useContentProvider";
+import userEvent from "@testing-library/user-event";
+
+jest.mock("../../hooks/useContentProvider");
+
+describe("Alerts Component", () => {
+  test("renders success alert", async () => {
+    (useContentProvider as jest.Mock).mockReturnValue({
+      fcrmAlert: { status: "success", message: "Operation successful" },
+      updateFcrmAlterts: jest.fn(),
+    });
+
+    render(<Alerts />);
+
+    expect(await screen.findByText("Success")).toBeInTheDocument();
+    expect(await screen.findByText("Operation successful")).toBeInTheDocument();
+    expect(screen.getByLabelText("success icon label")).toBeInTheDocument();
+  });
+
+  test("renders error alert", async () => {
+    (useContentProvider as jest.Mock).mockReturnValue({
+      fcrmAlert: { status: "error", message: "Operation failed" },
+      updateFcrmAlterts: jest.fn(),
+    });
+
+    render(<Alerts />);
+
+    expect(await screen.findByText("Error")).toBeInTheDocument();
+    expect(await screen.findByText("Operation failed")).toBeInTheDocument();
+    expect(screen.getByLabelText("error icon label")).toBeInTheDocument();
+  });
+
+  test("dismiss alert on close", async () => {
+    const updateFcrmAltertsMock = jest.fn();
+
+    (useContentProvider as jest.Mock).mockReturnValue({
+      fcrmAlert: { status: "success", message: "Operation successful" },
+      updateFcrmAlterts: updateFcrmAltertsMock,
+    });
+
+    render(<Alerts />);
+
+    const closeButton = screen.getByRole("button");
+    await userEvent.click(closeButton);
+
+    await waitFor(() => {
+      expect(updateFcrmAltertsMock).toHaveBeenCalledWith(undefined);
+    });
+  });
+});
+
+
+
+
+
+
+
+
+=====================================================================
 import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
