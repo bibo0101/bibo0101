@@ -1,6 +1,48 @@
+import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import Alerts from './Alerts'; // Adjust path if needed
+import { rootReducer } from '../../store'; // Assuming you have a rootReducer
+
+const mockStore = configureStore({ reducer: rootReducer });
+
+describe('Alerts Component', () => {
+  it('renders the alert with success and message', () => {
+    render(
+      <Provider store={mockStore}>
+        <Alerts />
+      </Provider>
+    );
+
+    expect(screen.getByText('Success')).toBeInTheDocument();
+    expect(screen.getByText(/Operation successful/i)).toBeInTheDocument();
+    expect(screen.getByTestId('mock-icon-success')).toBeInTheDocument();
+  });
+
+  it('renders the alert with error and message', () => {
+    const mockStore = configureStore({
+      reducer: rootReducer,
+      preloadedState: {
+        fcrmAlert: {
+          status: 'error',
+          message: 'Operation failed',
+        },
+      },
+    });
+
+    render(
+      <Provider store={mockStore}>
+        <Alerts />
+      </Provider>
+    );
+
+    expect(screen.getByText('Error')).toBeInTheDocument();
+    expect(screen.getByText('Operation failed')).toBeInTheDocument();
+  });
+});
 
 
-
+=============================
 import { render, screen, waitFor } from "@testing-library/react";
 import Alerts from "../path-to-alerts-component/Alerts";
 import { useContentProvider } from "../../hooks/useContentProvider";
