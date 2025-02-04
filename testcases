@@ -1,3 +1,123 @@
+import React from 'react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import attestationReducer from '../../../redux/slices/attestationSlice'; // Path to your actual reducer
+import { AttestationPanel } from '../AttestationPanel'; // Path to your component
+import { updateFcrmAttestation } from '../../../redux/actions'; // Path to your action creators
+
+describe('AttestationPanel Component', () => {
+  let store;
+
+  // Initialize the store with the real reducer and state
+  beforeEach(() => {
+    store = configureStore({
+      reducer: {
+        attestation: attestationReducer, // Use the real reducer
+      },
+      preloadedState: {
+        attestation: {
+          attestationData: {
+            attestedBy: false,
+            attestation: false,
+            overrideConfirmation: false,
+          },
+          riskScore: { level: 'Medium' },
+          isAnyOverrides: false,
+          fcrmStatus: 'Active',
+        },
+      },
+    });
+  });
+
+  it('renders AttestationPanel correctly', () => {
+    render(
+      <Provider store={store}>
+        <AttestationPanel readOnly={false} />
+      </Provider>
+    );
+
+    expect(screen.getByText('Risk Score: Medium')).toBeInTheDocument();
+  });
+
+  it('disables inputs when readOnly prop is true', () => {
+    render(
+      <Provider store={store}>
+        <AttestationPanel readOnly={true} />
+      </Provider>
+    );
+
+    const checkbox = screen.getByTestId('attestation-checkbox');
+    expect(checkbox).toBeDisabled();
+  });
+
+  it('enables inputs when readOnly prop is false', () => {
+    render(
+      <Provider store={store}>
+        <AttestationPanel readOnly={false} />
+      </Provider>
+    );
+
+    const checkbox = screen.getByTestId('attestation-checkbox');
+    expect(checkbox).not.toBeDisabled();
+  });
+
+  it('updates attestation state when checkbox is clicked', async () => {
+    render(
+      <Provider store={store}>
+        <AttestationPanel readOnly={false} />
+      </Provider>
+    );
+
+    const checkbox = screen.getByTestId('attestation-checkbox');
+    fireEvent.click(checkbox);
+
+    // Wait for the state change and check the updated state in Redux store
+    await waitFor(() => {
+      const updatedState = store.getState().attestation.attestationData.attestation;
+      expect(updatedState).toBe(true); // Check if state was updated correctly
+    });
+  });
+
+  it('updates override attestation when checkbox is clicked', async () => {
+    render(
+      <Provider store={store}>
+        <AttestationPanel readOnly={false} />
+      </Provider>
+    );
+
+    const overrideCheckbox = screen.getByTestId('override-checkbox');
+    fireEvent.click(overrideCheckbox);
+
+    // Wait for the state change and check the updated state in Redux store
+    await waitFor(() => {
+      const updatedOverride = store.getState().attestation.attestationData.overrideConfirmation;
+      expect(updatedOverride).toBe(true); // Check if override state was updated correctly
+    });
+  });
+
+  it('displays risk score from Redux store', () => {
+    render(
+      <Provider store={store}>
+        <AttestationPanel readOnly={false} />
+      </Provider>
+    );
+
+    expect(screen.getByText('Risk Score: Medium')).toBeInTheDocument();
+  });
+
+  it('renders correct FCRM status from Redux store', () => {
+    render(
+      <Provider store={store}>
+        <AttestationPanel readOnly={false} />
+      </Provider>
+    );
+
+    expect(screen.getByText('FCRM Status: Active')).toBeInTheDocument();
+  });
+});
+
+===================================================================
 import { render, screen, fireEvent } from '@testing-library/react';
 import AttestationCheckbox from './AttestationCheckbox'; // Adjust the import path as necessary
 
