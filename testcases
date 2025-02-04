@@ -1,3 +1,30 @@
+import { render, screen, fireEvent } from '@testing-library/react';
+import AttestationCheckbox from './AttestationCheckbox'; // Adjust the import path as necessary
+
+describe('AttestationCheckbox', () => {
+  const mockUpdateAttestation = jest.fn();
+
+  it('should toggle checkbox state and call update function', () => {
+    render(<AttestationCheckbox readOnly={false} updateAttestation={mockUpdateAttestation} />);
+
+    const checkbox = screen.getByLabelText(/I have answered to the best of my knowledge/i);
+
+    // Initially, the checkbox should be unchecked
+    expect(checkbox).not.toBeChecked();
+
+    // Simulate a click to check the checkbox
+    fireEvent.click(checkbox);
+    expect(checkbox).toBeChecked();
+    expect(mockUpdateAttestation).toHaveBeenCalledWith(true);
+
+    // Simulate a click to uncheck the checkbox
+    fireEvent.click(checkbox);
+    expect(checkbox).not.toBeChecked();
+    expect(mockUpdateAttestation).toHaveBeenCalledWith(false);
+  });
+});
+==============
+
 import { render, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { store } from './store'; // Adjust the import path to your actual store file
