@@ -1,3 +1,54 @@
+
+import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import Alerts from './Alerts'; // Adjust path if needed
+import fcrmAlertReducer from '../../store/reducers/fcrmAlertSlice'; // Adjust path as necessary
+
+describe('Alerts Component', () => {
+  it('renders the alert with success and message', () => {
+    const mockStore = configureStore({
+      reducer: {
+        fcrmAlert: fcrmAlertReducer,
+      },
+    });
+
+    render(
+      <Provider store={mockStore}>
+        <Alerts />
+      </Provider>
+    );
+
+    expect(screen.getByText('Success')).toBeInTheDocument();
+    expect(screen.getByText(/Operation successful/i)).toBeInTheDocument();
+    expect(screen.getByTestId('mock-icon-success')).toBeInTheDocument();
+  });
+
+  it('renders the alert with error and message', () => {
+    const mockStore = configureStore({
+      reducer: {
+        fcrmAlert: fcrmAlertReducer,
+      },
+      preloadedState: {
+        fcrmAlert: {
+          status: 'error',
+          message: 'Operation failed',
+        },
+      },
+    });
+
+    render(
+      <Provider store={mockStore}>
+        <Alerts />
+      </Provider>
+    );
+
+    expect(screen.getByText('Error')).toBeInTheDocument();
+    expect(screen.getByText('Operation failed')).toBeInTheDocument();
+  });
+});
+
+===========================================
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
