@@ -1,4 +1,129 @@
 import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
+import fcrmAlertReducer, { setAlert } from "../../redux/slices/fcrmAlertSlice"; // Import actual reducer and action
+import Alerts from "../Alerts";
+
+// Utility function to create a Redux store for testing
+const setupStore = (initialState: any) =>
+  configureStore({
+    reducer: {
+      fcrmAlert: fcrmAlertReducer,
+    },
+    preloadedState: initialState,
+  });
+
+describe("Alerts Component", () => {
+  test("renders success alert with correct message", () => {
+    const store = setupStore({
+      fcrmAlert: {
+        alertData: { status: "success", message: "Operation successful" },
+      },
+    });
+
+    render(
+      <Provider store={store}>
+        <Alerts />
+      </Provider>
+    );
+
+    expect(screen.getByText("Success")).toBeInTheDocument();
+    expect(screen.getByText("Operation successful")).toBeInTheDocument();
+    expect(screen.getByLabelText("success icon")).toBeInTheDocument();
+  });
+
+  test("renders error alert with correct message", () => {
+    const store = setupStore({
+      fcrmAlert: {
+        alertData: { status: "error", message: "Operation failed" },
+      },
+    });
+
+    render(
+      <Provider store={store}>
+        <Alerts />
+      </Provider>
+    );
+
+    expect(screen.getByText("Error")).toBeInTheDocument();
+    expect(screen.getByText("Operation failed")).toBeInTheDocument();
+    expect(screen.getByLabelText("error icon")).toBeInTheDocument();
+  });
+
+  test("renders alert with missing status", () => {
+    const store = setupStore({
+      fcrmAlert: {
+        alertData: { message: "Status is missing" }, // No status provided
+      },
+    });
+
+    render(
+      <Provider store={store}>
+        <Alerts />
+      </Provider>
+    );
+
+    expect(screen.getByText("Error")).toBeInTheDocument(); // Defaults to "Error"
+    expect(screen.getByText("Status is missing")).toBeInTheDocument();
+  });
+
+  test("renders alert with unknown status", () => {
+    const store = setupStore({
+      fcrmAlert: {
+        alertData: { status: "unknown", message: "Unknown status" },
+      },
+    });
+
+    render(
+      <Provider store={store}>
+        <Alerts />
+      </Provider>
+    );
+
+    expect(screen.getByText("Error")).toBeInTheDocument(); // Defaults to "Error" on unknown status
+    expect(screen.getByText("Unknown status")).toBeInTheDocument();
+  });
+
+  test("dismisses alert on close button click", () => {
+    const store = setupStore({
+      fcrmAlert: {
+        alertData: { status: "success", message: "Dismiss me" },
+      },
+    });
+
+    render(
+      <Provider store={store}>
+        <Alerts />
+      </Provider>
+    );
+
+    const closeButton = screen.getByRole("button");
+    fireEvent.click(closeButton);
+
+    const actions = store.getActions();
+    expect(actions).toContainEqual(setAlert(undefined));
+  });
+
+  test("does not render alert when alertData is undefined", () => {
+    const store = setupStore({
+      fcrmAlert: {
+        alertData: undefined,
+      },
+    });
+
+    render(
+      <Provider store={store}>
+        <Alerts />
+      </Provider>
+    );
+
+    expect(screen.queryByRole("alert")).not.toBeInTheDocument();
+  });
+});
+
+===================================================================
+import React from "react";
 import { render, screen } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { createStore } from "redux";
