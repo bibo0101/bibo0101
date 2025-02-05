@@ -1,3 +1,7 @@
+const Provider: React.FC<ProviderProps> = ({ children }) => {
+  return <>{children}</>; // Render children
+};
+========================
 import React, { FunctionComponent } from 'react';
 
 const MyComponent: FunctionComponent<{ children: ReactNode }> = ({ children }) => {
