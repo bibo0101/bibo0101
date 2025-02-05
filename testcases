@@ -4,6 +4,64 @@ import { configureStore } from "@reduxjs/toolkit";
 import Alerts from "../Alerts";
 import { vi } from "vitest";
 
+// ✅ Ensure we import the actual `react-redux`
+vi.mock("react-redux", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    useSelector: vi.fn(),
+    useDispatch: vi.fn(() => vi.fn()), // Mock dispatch function
+  };
+});
+
+describe("Alerts Component", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test("renders the Alert with success status and message", () => {
+    // ✅ Create a minimal Redux store for testing
+    const mockStore = configureStore({
+      reducer: {
+        fcrmAlert: () => ({
+          alertData: {
+            status: "success",
+            message: "Operation completed successfully.",
+          },
+        }),
+      },
+    });
+
+    // ✅ Mock `useSelector` to return the test data
+    (vi.mocked(useSelector) as jest.Mock).mockImplementation((selector) =>
+      selector({
+        fcrmAlert: {
+          alertData: {
+            status: "success",
+            message: "Operation completed successfully.",
+          },
+        },
+      })
+    );
+
+    // ✅ Wrap the component with `Provider`
+    const { getByText } = render(
+      <Provider store={mockStore}>
+        <Alerts />
+      </Provider>
+    );
+
+    expect(getByText("Operation completed successfully.")).toBeInTheDocument();
+  });
+});
+
+==============================
+import { render } from "@testing-library/react";
+import { Provider } from "react-redux";
+import { configureStore } from "@reduxjs/toolkit";
+import Alerts from "../Alerts";
+import { vi } from "vitest";
+
 // ✅ Properly mock react-redux while keeping Provider
 vi.mock("react-redux", async (importOriginal) => {
   const actual = await importOriginal();
