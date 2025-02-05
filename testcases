@@ -1,3 +1,19 @@
+import React, { FunctionComponent } from 'react';
+
+const MyComponent: FunctionComponent<{ children: ReactNode }> = ({ children }) => {
+  return <div>{children}</div>;
+};
+=============================
+import React, { ReactNode } from 'react';
+
+interface MyComponentProps {
+  children: ReactNode; // Explicitly typing children
+}
+
+const MyComponent: React.FC<MyComponentProps> = ({ children }) => {
+  return <div>{children}</div>;
+};
+================
 import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
