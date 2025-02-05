@@ -1,4 +1,55 @@
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import fcrmAlertReducer from '../redux/slices/fcrmAlertSlice'; // Adjust path as needed
+import Alerts from '../components/Alerts';
 
+describe('Alerts Component', () => {
+  const renderWithRedux = (initialState = {}) => {
+    const store = configureStore({
+      reducer: {
+        fcrmAlert: fcrmAlertReducer,
+      },
+      preloadedState: {
+        fcrmAlert: {
+          alertData: {
+            status: 'success',
+            message: 'Test message',
+          },
+        },
+        ...initialState,
+      },
+    });
+
+    return render(
+      <Provider store={store}>
+        <Alerts />
+      </Provider>
+    );
+  };
+
+  test('renders success alert with message', () => {
+    renderWithRedux();
+    expect(screen.getByText(/success/i)).toBeInTheDocument();
+    expect(screen.getByText(/test message/i)).toBeInTheDocument();
+  });
+
+  test('renders error alert', () => {
+    renderWithRedux({
+      fcrmAlert: {
+        alertData: {
+          status: 'error',
+          message: 'Error message',
+        },
+      },
+    });
+
+    expect(screen.getByText(/error/i)).toBeInTheDocument();
+    expect(screen.getByText(/error message/i)).toBeInTheDocument();
+  });
+});
+---------------------------------------------------------------------
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
