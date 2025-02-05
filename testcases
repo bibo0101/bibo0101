@@ -1,3 +1,70 @@
+import { render, screen, fireEvent } from "@testing-library/react";
+import { Provider } from "react-redux";
+import configureStore from "redux-mock-store";
+import { vi } from "vitest";
+import Alerts from "./Alerts";
+
+// Create a mock Redux store
+const mockStore = configureStore();
+const store = mockStore({
+  fcrmAlert: {
+    alertData: {
+      status: "success",
+      message: "Operation completed successfully.",
+    },
+  },
+});
+
+// Mock useDispatch
+const mockDispatch = vi.fn();
+vi.mock("react-redux", () => ({
+  ...vi.importActual("react-redux"),
+  useSelector: vi.fn((selector) =>
+    selector({
+      fcrmAlert: {
+        alertData: {
+          status: "success",
+          message: "Operation completed successfully.",
+        },
+      },
+    })
+  ),
+  useDispatch: () => mockDispatch,
+}));
+
+describe("Alerts Component", () => {
+  test("renders success message", () => {
+    render(
+      <Provider store={store}>
+        <Alerts />
+      </Provider>
+    );
+
+    // Check if success message appears
+    expect(
+      screen.getByText("Operation completed successfully.")
+    ).toBeInTheDocument();
+  });
+
+  test("dispatches action when dismissed", () => {
+    render(
+      <Provider store={store}>
+        <Alerts />
+      </Provider>
+    );
+
+    // Simulate clicking the dismiss button
+    const closeButton = screen.getByRole("button");
+    fireEvent.click(closeButton);
+
+    // Ensure `setAlert(undefined)` action is dispatched
+    expect(mockDispatch).toHaveBeenCalled();
+  });
+});
+
+
+
+==============
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import { Provider } from "react-redux";
