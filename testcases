@@ -1,6 +1,66 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import { createStore } from 'redux';
+import Alerts from './Alerts'; // Adjust the import path as necessary
+import rootReducer from '../redux/store'; // Adjust the import path to your root reducer
+
+// Create a mock store
+const mockStore = (initialState) => {
+  return createStore(rootReducer, initialState);
+};
+
+describe('Alerts Component', () => {
+  it('renders success alert', () => {
+    const initialState = {
+      fcrmAlert: {
+        alertData: {
+          status: 'success',
+          message: 'Operation was successful!',
+        },
+      },
+    };
+
+    const store = mockStore(initialState);
+
+    render(
+      <Provider store={store}>
+        <Alerts />
+      </Provider>
+    );
+
+    // Check if the alert is rendered with the correct message
+    expect(screen.getByText(/Operation was successful!/i)).toBeInTheDocument();
+    expect(screen.getByText(/Success/i)).toBeInTheDocument();
+  });
+
+  it('renders error alert', () => {
+    const initialState = {
+      fcrmAlert: {
+        alertData: {
+          status: 'error',
+          message: 'There was an error!',
+        },
+      },
+    };
+
+    const store = mockStore(initialState);
+
+    render(
+      <Provider store={store}>
+        <Alerts />
+      </Provider>
+    );
+
+    // Check if the alert is rendered with the correct message
+    expect(screen.getByText(/There was an error!/i)).toBeInTheDocument();
+    expect(screen.getByText(/Error/i)).toBeInTheDocument();
+  });
+});
+=======================================
+import React from 'react';
+import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import fcrmAlertReducer from '../redux/slices/fcrmAlertSlice'; // Adjust path as needed
 import Alerts from '../components/Alerts';
