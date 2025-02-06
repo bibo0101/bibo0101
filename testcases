@@ -1,3 +1,25 @@
+import { describe, it, expect } from 'vitest';
+import { Regex, TARegex } from './constants';
+
+describe('Constants Test', () => {
+  
+  it('Regex should match alphanumeric strings', () => {
+    expect(Regex.test('Test123')).toBe(true);
+    expect(Regex.test('Test@123')).toBe(false); // Should fail due to '@'
+    expect(Regex.test('12345')).toBe(true);
+  });
+
+  it('TARegex should match the TA-XXXX format', () => {
+    expect(TARegex.test('TA-1234')).toBe(true);
+    expect(TARegex.test('TA-12')).toBe(false); // Should fail (only 2 digits)
+    expect(TARegex.test('ta-1234')).toBe(false); // Should fail (lowercase)
+  });
+
+});
+
+================================================
+
+
 const Provider: React.FC<ProviderProps> = ({ children }) => {
   return <>{children}</>; // Render children
 };
