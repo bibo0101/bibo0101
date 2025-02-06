@@ -1,3 +1,30 @@
+import { vi } from "vitest"; // ✅ Import at the top
+
+// ✅ Mock functions (if any) should be here
+
+describe("ErrorPanel Component", () => {
+  beforeAll(() => {
+    vi.spyOn(console, "warn").mockImplementation((message) => {
+      if (message.includes("React Router Future Flag Warning")) return;
+      console.warn(message);
+    });
+
+    vi.spyOn(console, "error").mockImplementation((message) => {
+      if (message.includes("React Router Future Flag Warning")) return;
+      console.error(message);
+    });
+  });
+
+  it("displays errors for mainForm route", async () => {
+    // ✅ Your test case
+  });
+
+  it("displays errors for override page route", () => {
+    // ✅ Another test case
+  });
+});
+
+==================================================================
 jest.mock("@blueprintjs/core", () => ({
   ...jest.requireActual("@blueprintjs/core"),
   Icon: () => <span data-testid="mock-icon"></span>, // Mock icon component
