@@ -1,3 +1,59 @@
+import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import ErrorPanel from './ErrorPanel';
+
+jest.mock('react-redux', () => ({
+  ...jest.requireActual('react-redux'),
+  useSelector: jest.fn(),
+}));
+
+describe('ErrorPanel Component', () => {
+  it('renders without crashing', () => {
+    (useSelector as jest.Mock).mockReturnValue(['Field 1', 'Field 2'].map((field, index) => ({
+      id: index,
+      name: field,
+    })));
+
+    render(
+      <MemoryRouter initialEntries={['/mainForm']}>
+        <ErrorPanel />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByText(/errors to resolve/i)).toBeInTheDocument();
+  });
+
+  it('displays errors for mainForm route', async () => {
+    (useSelector as jest.Mock).mockReturnValueOnce(['Field 1', 'Field 2'].map((field, index) => ({
+      id: index,
+      name: field,
+    })));
+
+    render(
+      <MemoryRouter initialEntries={['/mainForm']}>
+        <ErrorPanel />
+      </MemoryRouter>
+    );
+
+    expect(screen.getByText('Field 1')).toBeInTheDocument();
+    expect(screen.getByText('Field 2')).toBeInTheDocument();
+  });
+
+  it('displays errors for override page route', () => {
+    (useSelector as jest.Mock).mockReturnValueOnce([]);
+
+    render(
+      <MemoryRouter initialEntries={['/override']}>
+        <ErrorPanel />
+      </MemoryRouter>
+    );
+
+    expect(screen.queryByText(/errors to resolve/i)).not.toBeInTheDocument();
+  });
+});
+
+=============================
 vi.mock('@barclays/blueprint-react', async () => {
   const actual = await vi.importActual<typeof import('@barclays/blueprint-react')>('@barclays/blueprint-react');
 
