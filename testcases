@@ -1,3 +1,14 @@
+vi.mock('@barclays/blueprint-react', async () => {
+  const actual = await vi.importActual<typeof import('@barclays/blueprint-react')>('@barclays/blueprint-react');
+
+  return {
+    ...actual,
+    Icon: ({ icon }: { icon: string }) => <span data-testid={`mock-icon-${icon}`} />,
+    Panel: ({ children }: { children?: React.ReactNode }) => <div data-testid="mock-panel">{children}</div>,
+  };
+});
+
+=======================================
 import { vi } from "vitest"; // ✅ Import at the top
 
 // ✅ Mock functions (if any) should be here
