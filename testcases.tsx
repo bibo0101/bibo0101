@@ -7,6 +7,77 @@ import SelectListener from './SelectListener';
 import * as RHF from 'react-hook-form'; // Import react-hook-form for mocking
 
 // Mock useWatch from react-hook-form
+vi.spyOn(RHF, 'useWatch').mockImplementation(() => 'mockedValue');
+
+vi.mock('./MultiSelectListener', () => {
+  return {
+    __esModule: true,
+    default: () => <div>MultiSelectListener</div>,
+  };
+});
+vi.mock('./ThresholdListener', () => {
+  return {
+    __esModule: true,
+    default: () => <div>ThresholdListener</div>,
+  };
+});
+vi.mock('./BooleanListener', () => {
+  return {
+    __esModule: true,
+    default: () => <div>BooleanListener</div>,
+  };
+});
+vi.mock('./SelectListener', () => {
+  return {
+    __esModule: true,
+    default: () => <div>SelectListener</div>,
+  };
+});
+
+describe('DataInputListener Component', () => {
+  it('renders MultiSelectListener for "multiselect" inputType', () => {
+    render(<DataInputListener fieldName="field1" inputType="multiselect" section="section1" picklistType="type1" />);
+    
+    expect(screen.getByText('MultiSelectListener')).toBeInTheDocument();
+  });
+
+  it('renders ThresholdListener for "multiselectThreshold" inputType', () => {
+    render(<DataInputListener fieldName="field2" inputType="multiselectThreshold" section="section2" picklistType="type2" />);
+    
+    expect(screen.getByText('ThresholdListener')).toBeInTheDocument();
+  });
+
+  it('renders BooleanListener for "booleanRadioPanel" inputType', () => {
+    render(<DataInputListener fieldName="field3" inputType="booleanRadioPanel" section="section3" />);
+    
+    expect(screen.getByText('BooleanListener')).toBeInTheDocument();
+  });
+
+  it('renders SelectListener for "select" inputType', () => {
+    render(<DataInputListener fieldName="field4" inputType="select" section="section4" picklistType="type4" />);
+    
+    expect(screen.getByText('SelectListener')).toBeInTheDocument();
+  });
+
+  it('renders empty fragment for an unrecognized inputType', () => {
+    render(<DataInputListener fieldName="field5" inputType="unknownType" section="section5" />);
+    
+    expect(screen.queryByText('MultiSelectListener')).not.toBeInTheDocument();
+    expect(screen.queryByText('ThresholdListener')).not.toBeInTheDocument();
+    expect(screen.queryByText('BooleanListener')).not.toBeInTheDocument();
+    expect(screen.queryByText('SelectListener')).not.toBeInTheDocument();
+  });
+});
+============================================
+import { render, screen } from '@testing-library/react';
+import DataInputListener from './InputDataListener';
+import MultiSelectListener from './MultiSelectListener';
+import ThresholdListener from './ThresholdListener';
+import BooleanListener from './BooleanListener';
+import SelectListener from './SelectListener';
+import * as RHF from 'react-hook-form'; // Import react-hook-form for mocking
+
+// Mock useWatch from react-hook-form
 jest.spyOn(RHF, 'useWatch').mockImplementation(() => 'mockedValue');
 
 jest.mock('./MultiSelectListener', () => jest.fn(() => <div>MultiSelectListener</div>));
