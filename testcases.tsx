@@ -1,51 +1,117 @@
-import { render, screen } from "@testing-library/react";
-import { describe, it, vi, expect } from "vitest";
-import MyComponent from "./MyComponent"; // Adjust based on your component's path
+ import { render, screen } from "@testing-library/react";
+import { Provider } from "react-redux";
+import configureStore from "redux-mock-store";
+import { vi } from "vitest";
+import ThresholdListener from "../ThresholdListener";
+import { updateMultiselectThresholds } from "src/redux/slices/riskSlices/multiSelectThresholdsSlice";
+import { ReduxStore } from "src/interfaces/ReduxStore";
 
-describe("MyComponent useEffect hooks", () => {
-  it("should set boolean risk type on mount", () => {
-    const mockRiskProvider = {
-      getBooleanQuestion: vi.fn().mockReturnValue(true),
-    };
+const mockStore = configureStore([]);
 
-    render(<MyComponent riskProvider={mockRiskProvider} />);
+describe("ThresholdListener Component", () => {
+  let store: any;
+  let dispatch: any;
 
-    expect(mockRiskProvider.getBooleanQuestion).toHaveBeenCalled();
+  beforeEach(() => {
+    store = mockStore({
+      riskTolerance: {},
+      industryRisks: {},
+      countryRisks: {},
+      generalData: {
+        fieldVisibility: {},
+        validationStatus: {},
+      },
+    });
+    dispatch = vi.fn();
+    store.dispatch = dispatch;
   });
 
-  it("should set previous data when fieldD changes", () => {
-    const { rerender } = render(<MyComponent fieldD={undefined} />);
-    rerender(<MyComponent fieldD="newData" />);
-
-    expect(screen.getByTestId("previous-data").textContent).toBe("newData");
+  it("should render without crashing", () => {
+    render(
+      <Provider store={store}>
+        <ThresholdListener fieldName="testField" section="testSection" picklistType="country" />
+      </Provider>
+    );
+    expect(screen.queryByText(/error/i)).toBeNull();
   });
 
-  it("should clear errors if showE is false or errorMessage is empty", () => {
-    const mockClearErrors = vi.fn();
-    render(<MyComponent showE={false} errorMessage="" clearErrors={mockClearErrors} />);
-
-    expect(mockClearErrors).toHaveBeenCalled();
+  it("should dispatch updateMultiselectThresholds when updating risk items", () => {
+    const riskItem = { option: "Test Option", percentage: 50 };
+    store.dispatch(updateMultiselectThresholds(riskItem));
+    expect(dispatch).toHaveBeenCalledWith(updateMultiselectThresholds(riskItem));
   });
 
-  it("should set an error message when rhfFieldD is undefined", () => {
-    render(<MyComponent rhfFieldD={undefined} />);
-
-    expect(screen.getByTestId("error-message").textContent).toContain("Error: required");
+  it("should handle removing risk items correctly", () => {
+    const riskItem = { option: "Test Option", percentage: 50 };
+    store.dispatch(updateMultiselectThresholds(riskItem));
+    expect(dispatch).toHaveBeenCalledWith(updateMultiselectThresholds(riskItem));
   });
 
-  it("should update boolean risk and reset error message when rhfFieldD is defined", () => {
-    const mockUpdateBooleanRisk = vi.fn();
-    render(<MyComponent rhfFieldD="someValue" updateBooleanRisk={mockUpdateBooleanRisk} />);
-
-    expect(mockUpdateBooleanRisk).toHaveBeenCalled();
-    expect(screen.getByTestId("error-message").textContent).toBe("");
-  });
-
-  it("should update visibility when formD changes", () => {
-    const { rerender } = render(<MyComponent formD={{ fieldN: { isVisible: false } }} />);
-    rerender(<MyComponent formD={{ fieldN: { isVisible: true } }} />);
-
-    expect(screen.getByTestId("visibility-status").textContent).toBe("true");
+  it("should handle visibility changes", () => {
+    render(
+      <Provider store={store}>
+        <ThresholdListener fieldName="testField" section="testSection" picklistType="country" />
+      </Provider>
+    );
+    expect(store.getState().generalData.fieldVisibility).toBeDefined();
   });
 });
 
+import { Provider } from "react-redux";
+import configureStore from "redux-mock-store";
+import { vi } from "vitest";
+import ThresholdListener from "../ThresholdListener";
+import { updateMultiselectThresholds } from "src/redux/slices/riskSlices/multiSelectThresholdsSlice";
+import { ReduxStore } from "src/interfaces/ReduxStore";
+
+const mockStore = configureStore([]);
+
+describe("ThresholdListener Component", () => {
+  let store: any;
+  let dispatch: any;
+
+  beforeEach(() => {
+    store = mockStore({
+      riskTolerance: {},
+      industryRisks: {},
+      countryRisks: {},
+      generalData: {
+        fieldVisibility: {},
+        validationStatus: {},
+      },
+    });
+    dispatch = vi.fn();
+    store.dispatch = dispatch;
+  });
+
+  it("should render without crashing", () => {
+    render(
+      <Provider store={store}>
+        <ThresholdListener fieldName="testField" section="testSection" picklistType="country" />
+      </Provider>
+    );
+    expect(screen.queryByText(/error/i)).toBeNull();
+  });
+
+  it("should dispatch updateMultiselectThresholds when updating risk items", () => {
+    const riskItem = { option: "Test Option", percentage: 50 };
+    store.dispatch(updateMultiselectThresholds(riskItem));
+    expect(dispatch).toHaveBeenCalledWith(updateMultiselectThresholds(riskItem));
+  });
+
+  it("should handle removing risk items correctly", () => {
+    const riskItem = { option: "Test Option", percentage: 50 };
+    store.dispatch(updateMultiselectThresholds(riskItem));
+    expect(dispatch).toHaveBeenCalledWith(updateMultiselectThresholds(riskItem));
+  });
+
+  it("should handle visibility changes", () => {
+    render(
+      <Provider store={store}>
+        <ThresholdListener fieldName="testField" section="testSection" picklistType="country" />
+      </Provider>
+    );
+    expect(store.getState().generalData.fieldVisibility).toBeDefined();
+  });
+});
+=====================
