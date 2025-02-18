@@ -1,3 +1,108 @@
+import { getErrorMessage, getChangedData, getPicklist } from "../riskDataUpdater";
+import { store } from "../../store";
+
+jest.mock("../../store", () => ({
+  store: {
+    getState: jest.fn(),
+  },
+}));
+
+describe("riskDataUpdater", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe("getErrorMessage", () => {
+    it("should return required field error when map is empty", () => {
+      const thresholdData = new Map();
+      expect(getErrorMessage(thresholdData)).toBe("Error: this is a required field");
+    });
+
+    it("should return error for percentage less than 1", () => {
+      const thresholdData = new Map([["Option1", 0]]);
+      expect(getErrorMessage(thresholdData)).toBe("Error: percentages cannot be less than 1%");
+    });
+
+    it("should return error for percentage greater than 100", () => {
+      const thresholdData = new Map([["Option1", 110]]);
+      expect(getErrorMessage(thresholdData)).toBe("Error: percentages cannot be greater than 100%");
+    });
+
+    it("should return an empty string if all percentages are valid", () => {
+      const thresholdData = new Map([["Option1", 50]]);
+      expect(getErrorMessage(thresholdData)).toBe("");
+    });
+  });
+
+  describe("getChangedData", () => {
+    it("should detect additions and removals correctly", () => {
+      const previousData = new Map([
+        ["Option1", 50],
+        ["Option2", 20],
+      ]);
+      const newItems = new Map([
+        ["Option1", 50], // unchanged
+        ["Option3", 30], // new addition
+      ]);
+
+      const result = getChangedData(newItems);
+      expect(result.addition).toEqual({ option: "Option3", percentage: 30 });
+      expect(result.removal).toEqual({ option: "Option2", percentage: 20 });
+    });
+
+    it("should return empty changes when no difference", () => {
+      const previousData = new Map([
+        ["Option1", 50],
+      ]);
+      const newItems = new Map([
+        ["Option1", 50],
+      ]);
+
+      const result = getChangedData(newItems);
+      expect(result.addition).toEqual({ option: "", percentage: 0 });
+      expect(result.removal).toEqual({ option: "", percentage: 0 });
+    });
+  });
+
+  describe("getPicklist", () => {
+    it("should return country risks if picklistType is 'country'", () => {
+      store.getState.mockReturnValue({
+        countryRisks: { USA: ["High"], UK: ["Medium"] },
+        industryRisks: {},
+      });
+
+      const result = getPicklist("country");
+      expect(result).toEqual(new Map([
+        ["USA", ["High"]],
+        ["UK", ["Medium"]],
+      ]));
+    });
+
+    it("should return industry risks if picklistType is 'industry'", () => {
+      store.getState.mockReturnValue({
+        countryRisks: {},
+        industryRisks: { Tech: ["High"], Finance: ["Low"] },
+      });
+
+      const result = getPicklist("industry");
+      expect(result).toEqual(new Map([
+        ["Tech", ["High"]],
+        ["Finance", ["Low"]],
+      ]));
+    });
+
+    it("should return an empty map when no data is found", () => {
+      store.getState.mockReturnValue({
+        countryRisks: {},
+        industryRisks: {},
+      });
+
+      const result = getPicklist("unknown");
+      expect(result).toEqual(new Map());
+    });
+  });
+});
+============================================================
 import { updateRiskItems, removeRiskItem, updateThresholdData, getExistingRiskData, getRiskTolerance } from "../riskDataUpdater";
 import { updateMultiselectThresholds } from "../../actions";
 import { store } from "../../store"; 
