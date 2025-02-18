@@ -1,3 +1,101 @@
+import { updateRiskItems, removeRiskItem, updateThresholdData, getExistingRiskData, getRiskTolerance } from "../riskDataUpdater";
+import { updateMultiselectThresholds } from "../../actions";
+import { store } from "../../store"; 
+
+jest.mock("../../store", () => ({
+  store: {
+    getState: jest.fn(),
+    dispatch: jest.fn(),
+  },
+}));
+
+const mockRiskProvider = {
+  getQuestionRiskData: jest.fn(),
+  updateThresholdValues: jest.fn(),
+  removeThresholdValue: jest.fn(),
+};
+
+jest.mock("../../riskProvider", () => mockRiskProvider);
+
+describe("riskDataUpdater", () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  describe("updateRiskItems", () => {
+    it("should not update when riskData is undefined", () => {
+      mockRiskProvider.getQuestionRiskData.mockReturnValue(undefined);
+      updateRiskItems({ option: "Test", percentage: 50 });
+      expect(mockRiskProvider.updateThresholdValues).not.toHaveBeenCalled();
+    });
+
+    it("should not update when percentage is greater than 100", () => {
+      mockRiskProvider.getQuestionRiskData.mockReturnValue({});
+      updateRiskItems({ option: "Test", percentage: 110 });
+      expect(mockRiskProvider.updateThresholdValues).not.toHaveBeenCalled();
+    });
+
+    it("should update thresholds correctly", () => {
+      const mockRiskData = {};
+      const mockThresholdResponse = { updated: true };
+      mockRiskProvider.getQuestionRiskData.mockReturnValue(mockRiskData);
+      mockRiskProvider.updateThresholdValues.mockReturnValue(mockThresholdResponse);
+
+      updateRiskItems({ option: "Test", percentage: 50 });
+
+      expect(mockRiskProvider.updateThresholdValues).toHaveBeenCalledWith(mockRiskData, expect.anything());
+      expect(store.dispatch).toHaveBeenCalledWith(updateMultiselectThresholds(mockThresholdResponse));
+    });
+  });
+
+  describe("removeRiskItem", () => {
+    it("should not remove when riskData is undefined", () => {
+      mockRiskProvider.getQuestionRiskData.mockReturnValue(undefined);
+      removeRiskItem({ option: "Test", percentage: 50 });
+      expect(mockRiskProvider.removeThresholdValue).not.toHaveBeenCalled();
+    });
+
+    it("should remove threshold value correctly", () => {
+      const mockRiskData = {};
+      const mockThresholdResponse = { updated: true };
+      mockRiskProvider.getQuestionRiskData.mockReturnValue(mockRiskData);
+      mockRiskProvider.removeThresholdValue.mockReturnValue(mockThresholdResponse);
+
+      removeRiskItem({ option: "Test", percentage: 50 });
+
+      expect(mockRiskProvider.removeThresholdValue).toHaveBeenCalledWith(mockRiskData, "Test", expect.anything());
+      expect(store.dispatch).toHaveBeenCalledWith(updateMultiselectThresholds(mockThresholdResponse));
+    });
+  });
+
+  describe("getExistingRiskData", () => {
+    it("should return existing risk data", () => {
+      const mockExistingData = { riskCategories: ["Category1"] };
+      store.getState.mockReturnValue(mockExistingData);
+
+      const result = getExistingRiskData();
+      expect(result.riskCategories).toEqual(["Category1"]);
+    });
+  });
+
+  describe("updateThresholdData", () => {
+    it("should dispatch updated threshold data", () => {
+      const mockResponse = { updatedData: "New Data" };
+      updateThresholdData(mockResponse);
+      expect(store.dispatch).toHaveBeenCalledWith(updateMultiselectThresholds(mockResponse));
+    });
+  });
+
+  describe("getRiskTolerance", () => {
+    it("should return risk tolerance from state", () => {
+      store.getState.mockReturnValue({ riskTolerance: 80 });
+
+      const result = getRiskTolerance();
+      expect(result).toBe(80);
+    });
+  });
+});
+===================================================
 import { render, screen } from "@testing-library/react";
 import { describe, it, expect, vi } from "vitest";
 import ThresholdListener from "path-to/ThresholdListener";
