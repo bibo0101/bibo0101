@@ -1,1 +1,63 @@
+import { render, screen } from "@testing-library/react";
+import { describe, it, expect, vi } from "vitest";
+import ThresholdListener from "path-to/ThresholdListener";
+import { useStore } from "react-redux";
+
+vi.mock("react-redux", () => ({
+  useStore: vi.fn(),
+}));
+
+describe("ThresholdListener Component", () => {
+  let mockDispatch: vi.Mock;
+
+  beforeEach(() => {
+    mockDispatch = vi.fn();
+    (useStore as vi.Mock).mockReturnValue({ dispatch: mockDispatch });
+  });
+
+  it("should update previousData when fieldData changes", () => {
+    const { rerender } = render(<ThresholdListener fieldData={{ test: 1 }} />);
+    
+    expect(mockDispatch).not.toHaveBeenCalled();
+    
+    rerender(<ThresholdListener fieldData={{ test: 2 }} />);
+    
+    // Ensure previousData updates (mock setPreviousData if needed)
+  });
+
+  it("should clear errors when showErrors is false", () => {
+    const clearErrors = vi.fn();
+    
+    render(<ThresholdListener showErrors={false} clearErrors={clearErrors} fieldName="testField" />);
+    
+    expect(clearErrors).toHaveBeenCalledWith("testField");
+  });
+
+  it("should call setError when showErrors is true and errorMessage exists", () => {
+    const setError = vi.fn();
+    
+    render(<ThresholdListener showErrors={true} errorMessage="Error!" setError={setError} fieldName="testField" />);
+    
+    expect(setError).toHaveBeenCalledWith("testField", { type: "custom", message: "Error!" });
+  });
+
+  it("should remove risk items and update visibility when not visible", () => {
+    const removeRiskItem = vi.fn();
+    
+    render(<ThresholdListener isVisible={false} previousData={new Map([["option1", 50]])} removeRiskItem={removeRiskItem} />);
+    
+    expect(removeRiskItem).toHaveBeenCalledWith("option1", 50);
+    expect(mockDispatch).toHaveBeenCalledWith(expect.objectContaining({ type: "changeFieldVisibilityRemoval" }));
+  });
+
+  it("should update risk items and setValue when visible", () => {
+    const updateRiskItems = vi.fn();
+    const setValue = vi.fn();
+
+    render(<ThresholdListener isVisible={true} previousData={new Map([["option1", 50]])} updateRiskItems={updateRiskItems} setValue={setValue} fieldName="testField" />);
+    
+    expect(updateRiskItems).toHaveBeenCalledWith("option1", 50);
+    expect(setValue).toHaveBeenCalledWith("testField", expect.any(Map));
+  });
+});
 
