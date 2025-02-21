@@ -1,3 +1,106 @@
+import { render, waitFor } from "@testing-library/react";
+import { vi } from "vitest";
+import YourComponent from "../YourComponent"; // Adjust the path
+
+describe("YourComponent", () => {
+  const clearErrors = vi.fn();
+  const setError = vi.fn();
+  const removeRiskItem = vi.fn();
+  const updateRiskItems = vi.fn();
+  const setErrorMessage = vi.fn();
+  const dispatch = vi.fn();
+
+  beforeEach(() => {
+    // Reset mocks before each test
+    vi.clearAllMocks();
+  });
+
+  test("should clear errors when showErrors is false or errorMessage is empty", async () => {
+    render(
+      <YourComponent 
+        showErrors={false} 
+        errorMessage="" 
+        clearErrors={clearErrors} 
+        fieldName="testField" 
+        setError={setError} 
+      />
+    );
+
+    await waitFor(() => {
+      expect(clearErrors).toHaveBeenCalledWith("testField");
+    });
+  });
+
+  test("should set error when showErrors is true and errorMessage is not empty", async () => {
+    const errorMessage = "This field is required";
+
+    render(
+      <YourComponent 
+        showErrors={true} 
+        errorMessage={errorMessage} 
+        clearErrors={clearErrors} 
+        fieldName="testField" 
+        setError={setError} 
+      />
+    );
+
+    await waitFor(() => {
+      expect(setError).toHaveBeenCalledWith("testField", { type: "custom", message: errorMessage });
+    });
+  });
+
+  test("should remove risk items when isVisible is false and previousData is defined", async () => {
+    const previousData = { option1: 50, option2: 30 };
+
+    render(
+      <YourComponent 
+        isVisible={false} 
+        previousData={previousData} 
+        removeRiskItem={removeRiskItem} 
+        dispatch={dispatch} 
+      />
+    );
+
+    await waitFor(() => {
+      Object.entries(previousData).forEach(([option, percentage]) => {
+        expect(removeRiskItem).toHaveBeenCalledWith(option, percentage);
+      });
+    });
+  });
+
+  test("should update risk items when isVisible is true and previousData is defined", async () => {
+    const previousData = { option1: 50, option2: 30 };
+
+    render(
+      <YourComponent 
+        isVisible={true} 
+        previousData={previousData} 
+        updateRiskItems={updateRiskItems} 
+        dispatch={dispatch} 
+      />
+    );
+
+    await waitFor(() => {
+      Object.entries(previousData).forEach(([option, percentage]) => {
+        expect(updateRiskItems).toHaveBeenCalledWith(option, percentage);
+      });
+    });
+  });
+
+  test("should set error message when rhfFieldData is undefined", async () => {
+    render(
+      <YourComponent 
+        rhfFieldData={undefined} 
+        setErrorMessage={setErrorMessage} 
+      />
+    );
+
+    await waitFor(() => {
+      expect(setErrorMessage).toHaveBeenCalledWith('Error: this is a required field');
+    });
+  });
+});
+==============================
 import { getRiskTolerance } from './yourModule'; // Adjust the import based on your file structure
 import { store } from './yourStore'; // Adjust the import based on your file structure
 
