@@ -1,3 +1,63 @@
+import { vi } from "vitest";
+import { getExistingRiskData, removeRiskItem, updateThresholdData, getRiskTolerance } from "../yourFile";
+import { store } from "../store"; // Adjust the import path as needed
+
+// Mock dependencies
+const getPicklist = vi.fn(() => new Map([["Tech", ["High"]], ["Finance", ["Low"]]]));
+const dispatch = vi.fn();
+store.dispatch = dispatch;
+
+describe("Risk Data Functions", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  test("getExistingRiskData should return riskCategories from getPicklist", () => {
+    const result = getExistingRiskData();
+    expect(result.riskCategories).toEqual(getPicklist());
+    expect(getPicklist).toHaveBeenCalled();
+  });
+
+  test("removeRiskItem should return early if removedItem.option is undefined", () => {
+    expect(removeRiskItem({ option: undefined })).toBeUndefined();
+  });
+
+  test("removeRiskItem should return early if riskData is undefined", () => {
+    vi.spyOn(riskProvider, "getQuestion").mockReturnValue(undefined);
+    expect(removeRiskItem({ option: "Tech" })).toBeUndefined();
+  });
+
+  test("removeRiskItem should call updateThresholdData if thresholdUpdateResponse is defined", () => {
+    const mockThresholdResponse = { newMultiSelectAnswers: { Tech: ["High"] } };
+    vi.spyOn(riskProvider, "getQuestion").mockReturnValue(mockThresholdResponse);
+    const updateThresholdDataMock = vi.spyOn(global, "updateThresholdData").mockImplementation(() => {});
+    
+    removeRiskItem({ option: "Tech" });
+
+    expect(updateThresholdDataMock).toHaveBeenCalledWith(mockThresholdResponse);
+  });
+
+  test("updateThresholdData should update store with new risk thresholds", () => {
+    const mockThresholdResponse = { newMultiSelectAnswers: { Tech: ["High"], Finance: [] } };
+    updateThresholdData(mockThresholdResponse);
+
+    expect(dispatch).toHaveBeenCalledWith({
+      type: "updateMultiselectThresholds",
+      payload: { newMultiSelectAnswers: { Tech: ["High"] } } // Finance should be removed
+    });
+  });
+
+  test("getRiskTolerance should return riskTolerance from Redux store", () => {
+    vi.spyOn(store, "getState").mockReturnValue({
+      riskTolerance: { Tech: "High", Finance: "Low" }
+    });
+
+    const result = getRiskTolerance();
+    expect(result).toEqual({ Tech: "High", Finance: "Low" });
+  });
+});
+=====================================================
+
 import { getErrorMessage, getChangedData, getPicklist } from "../riskDataUpdater";
 import { store } from "../../store";
 
