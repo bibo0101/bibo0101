@@ -1,3 +1,57 @@
+import { getRiskTolerance } from './yourModule'; // Adjust the import based on your file structure
+import { store } from './yourStore'; // Adjust the import based on your file structure
+
+describe('getRiskTolerance', () => {
+  it('should return risk tolerance from the store', () => {
+    const mockState = {
+      riskTolerance: { level: 'medium' },
+    };
+    store.getState = jest.fn().mockReturnValue(mockState); // Mock the store's getState method
+
+    const result = getRiskTolerance();
+
+    expect(result).toEqual(mockState.riskTolerance);
+  });
+});
+================================================
+import { removeRiskItem } from './yourModule'; // Adjust the import based on your file structure
+
+describe('removeRiskItem', () => {
+  it('should return early if removedItem.option is undefined', () => {
+    const removedItem = { option: undefined };
+    const result = removeRiskItem(removedItem);
+    expect(result).toBeUndefined(); // Adjust based on what the function returns
+  });
+
+  it('should return early if riskData is undefined', () => {
+    const removedItem = { option: 'someOption' };
+    const result = removeRiskItem(removedItem);
+    expect(result).toBeUndefined(); // Adjust based on what the function returns
+  });
+
+  // Add more tests to cover other scenarios
+});
+=================================================================
+import { getExistingRiskData } from './yourModule'; // Adjust the import based on your file structure
+import { getPicklist } from './yourPicklistModule'; // Adjust the import based on your file structure
+
+jest.mock('./yourPicklistModule'); // Mock the module that contains getPicklist
+
+describe('getExistingRiskData', () => {
+  it('should return existing risk data with risk categories', () => {
+    const mockPicklist = new Map([
+      ["Tech", ["High"]],
+      ["Finance", ["Low"]],
+    ]);
+    
+    getPicklist.mockReturnValue(mockPicklist); // Mock the return value of getPicklist
+
+    const result = getExistingRiskData();
+
+    expect(result.riskCategories).toEqual(mockPicklist);
+  });
+});
+============================================================================
 import { vi } from "vitest";
 import { getExistingRiskData, removeRiskItem, updateThresholdData, getRiskTolerance } from "../yourFile";
 import { store } from "../store"; // Adjust the import path as needed
