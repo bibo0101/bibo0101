@@ -1,3 +1,125 @@
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import BooleanListener from './BooleanListener'; // Adjust the import path
+import { describe, it, expect, vi } from 'vitest';
+
+// Mock Redux store for testing
+const mockStore = configureStore({
+  reducer: {
+    riskItems: () => ({}),
+    riskTolerance: () => ({}),
+  },
+});
+
+// Mock functions using `vi`
+vi.mock('src/Fcrm/hooks/useRiskScoreProvider.tsx', () => ({
+  useRiskScoreProvider: vi.fn(() => ({
+    getBooleanQuestionSubtype: vi.fn(() => 'standard'),
+    updateBooleanRisk: vi.fn(),
+    updatePepRisk: vi.fn(),
+    removeBooleanRisk: vi.fn(),
+  })),
+}));
+
+vi.mock('src/redux/selectors/generalDatas', () => ({
+  getFcrmEntryField: vi.fn(() => ({
+    fieldName: 'testField',
+    value: 'Yes',
+  })),
+  getInvalidFieldsErrorPanelState: vi.fn(() => true),
+}));
+
+vi.mock('src/redux/slices/validationStatusSlice.ts', () => ({
+  changeFieldIsValidIsVisibleUpdate: vi.fn(),
+  changeFieldNotValidIsVisibleUpdate: vi.fn(),
+  changeFieldVisibilityRemoval: vi.fn(),
+  updateFieldValidationStatusNotValidNotVisible: vi.fn(),
+}));
+
+// Import the mocked `useRiskScoreProvider`
+import { useRiskScoreProvider } from 'src/Fcrm/hooks/useRiskScoreProvider.tsx';
+
+// Test suite
+describe('BooleanListener Component', () => {
+  it('renders without crashing', () => {
+    render(
+      <Provider store={mockStore}>
+        <BooleanListener fieldName="testField" section="testSection" />
+      </Provider>
+    );
+
+    expect(screen.getByText('Error: this is a required field')).toBeInTheDocument();
+  });
+
+  it('calls updateBooleanRisk when value changes', async () => {
+    const { getByLabelText } = render(
+      <Provider store={mockStore}>
+        <BooleanListener fieldName="testField" section="testSection" />
+      </Provider>
+    );
+
+    // Simulate field change
+    const radioButtonYes = getByLabelText(/Yes/i);
+    fireEvent.click(radioButtonYes);
+
+    await waitFor(() => {
+      expect(useRiskScoreProvider().updateBooleanRisk).toHaveBeenCalled();
+    });
+  });
+
+  it('displays error message when field is required and not filled', async () => {
+    const { getByText, getByLabelText } = render(
+      <Provider store={mockStore}>
+        <BooleanListener fieldName="testField" section="testSection" />
+      </Provider>
+    );
+
+    const radioButtonNo = getByLabelText(/No/i);
+    fireEvent.click(radioButtonNo);
+
+    await waitFor(() => {
+      expect(getByText('Error: this is a required field')).toBeInTheDocument();
+    });
+  });
+
+  it('updates the form state when value is updated', async () => {
+    const { getByLabelText } = render(
+      <Provider store={mockStore}>
+        <BooleanListener fieldName="testField" section="testSection" />
+      </Provider>
+    );
+
+    const radioButtonYes = getByLabelText(/Yes/i);
+    fireEvent.click(radioButtonYes);
+
+    await waitFor(() => {
+      expect(getByLabelText(/Yes/i)).toBeChecked();
+    });
+  });
+
+  it('does not call updateBooleanRisk if the value is unchanged', async () => {
+    const { getByLabelText } = render(
+      <Provider store={mockStore}>
+        <BooleanListener fieldName="testField" section="testSection" />
+      </Provider>
+    );
+
+    // First, simulate clicking "Yes"
+    const radioButtonYes = getByLabelText(/Yes/i);
+    fireEvent.click(radioButtonYes);
+
+    // Then simulate clicking "No" (should not call `updateBooleanRisk` if logic prevents redundant calls)
+    const radioButtonNo = getByLabelText(/No/i);
+    fireEvent.click(radioButtonNo);
+
+    await waitFor(() => {
+      expect(useRiskScoreProvider().updateBooleanRisk).not.toHaveBeenCalledTimes(2);
+    });
+  });
+});
+
+============================================================
 import { render, waitFor } from "@testing-library/react";
 import { vi } from "vitest";
 import YourComponent from "../YourComponent"; // Adjust the path
