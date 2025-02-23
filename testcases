@@ -1,3 +1,92 @@
+
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { setRiskItems } from "../store/actions"; // Import Redux action
+import BooleanListener from "./BooleanListener"; // Import the component
+import { render, fireEvent, screen } from "@testing-library/react";
+import { Provider } from "react-redux";
+import configureStore from "redux-mock-store";
+
+// Mock store setup
+const mockStore = configureStore();
+const dispatchMock = vi.fn();
+const store = mockStore({ riskItems: new Map() });
+store.dispatch = dispatchMock;
+
+// Mock RiskProvider
+const riskProvider = {
+  removeBooleanRisk: vi.fn(),
+  updateBooleanRiskItem: vi.fn(),
+};
+
+// Mock implementation of parseRiskItems
+const parseRiskItems = vi.fn(() => new Map());
+
+beforeEach(() => {
+  vi.clearAllMocks();
+});
+
+// Mock component props
+const props = {
+  fieldName: "testField",
+  section: "testSection",
+};
+
+// Wrap the component in Redux Provider
+const renderComponent = () =>
+  render(
+    <Provider store={store}>
+      <BooleanListener {...props} />
+    </Provider>
+  );
+
+describe("BooleanListener Component", () => {
+  it("renders without crashing", () => {
+    renderComponent();
+    expect(screen.getByText("testSection")).toBeInTheDocument();
+  });
+
+  it("calls updateBooleanRiskItem when a boolean value changes", () => {
+    renderComponent();
+    const updateBooleanRiskItem = vi.fn();
+    updateBooleanRiskItem(true);
+    expect(updateBooleanRiskItem).toHaveBeenCalledWith(true);
+  });
+
+  it("calls removeBooleanRisk with correct arguments", () => {
+    renderComponent();
+    riskProvider.removeBooleanRisk("testField", true, parseRiskItems());
+    expect(riskProvider.removeBooleanRisk).toHaveBeenCalledWith(
+      "testField",
+      true,
+      parseRiskItems()
+    );
+  });
+
+  it("dispatches setRiskItems when new risk items are updated", () => {
+    renderComponent();
+    const newRiskItems = {
+      newRiskItems: {},
+      updatedRiskScore: 10,
+    };
+    dispatchMock(setRiskItems(newRiskItems));
+    expect(dispatchMock).toHaveBeenCalledWith(setRiskItems(newRiskItems));
+  });
+
+  it("handles undefined risk items correctly in parseRiskItems", () => {
+    const state = { riskItems: undefined };
+    store.getState = () => state;
+    expect(parseRiskItems()).toEqual(new Map());
+  });
+
+  it("does not update if previous data matches", () => {
+    renderComponent();
+    const previousData = true;
+    const updateBooleanRiskItem = vi.fn();
+    updateBooleanRiskItem(previousData);
+    expect(updateBooleanRiskItem).not.toHaveBeenCalled();
+  });
+});
+===============================
 import { describe, it, expect, vi } from "vitest";
 
 // Mocked function implementations
