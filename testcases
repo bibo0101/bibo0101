@@ -1,3 +1,52 @@
+import { describe, it, expect, vi } from "vitest";
+
+// Mocked function implementations
+const updatePep = vi.fn();
+const updateForeignDomesticPep = vi.fn();
+const updateBooleanRiskItem = vi.fn();
+
+// Function to test
+function updateBooleanRisk(answer: boolean, booleanRiskType: string) {
+  switch (booleanRiskType) {
+    case "pep":
+      updatePep(answer);
+      break;
+    case "foreignDomestic":
+      updateForeignDomesticPep(answer);
+      break;
+    case "standard":
+      updateBooleanRiskItem(answer);
+      break;
+    default:
+      return;
+  }
+}
+
+describe("updateBooleanRisk function", () => {
+  it("calls updatePep when booleanRiskType is 'pep'", () => {
+    updateBooleanRisk(true, "pep");
+    expect(updatePep).toHaveBeenCalledWith(true);
+  });
+
+  it("calls updateForeignDomesticPep when booleanRiskType is 'foreignDomestic'", () => {
+    updateBooleanRisk(false, "foreignDomestic");
+    expect(updateForeignDomesticPep).toHaveBeenCalledWith(false);
+  });
+
+  it("calls updateBooleanRiskItem when booleanRiskType is 'standard'", () => {
+    updateBooleanRisk(true, "standard");
+    expect(updateBooleanRiskItem).toHaveBeenCalledWith(true);
+  });
+
+  it("does nothing for unknown booleanRiskType", () => {
+    updateBooleanRisk(true, "unknownType");
+    expect(updatePep).not.toHaveBeenCalled();
+    expect(updateForeignDomesticPep).not.toHaveBeenCalled();
+    expect(updateBooleanRiskItem).not.toHaveBeenCalled();
+  });
+});
+
+==============================================Boolean
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
