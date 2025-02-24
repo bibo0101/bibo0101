@@ -1,8 +1,36 @@
 import { renderHook } from '@testing-library/react';
+import { ReactNode } from 'react';
+import { RiskScoreProvider } from '../providers/RiskScoreProvider'; // Adjust to your actual path
+import { useRiskScoreProvider } from './useRiskScoreProvider'; // Adjust to your actual path
+
+describe('useRiskScoreProvider', () => {
+  it('should throw an error if used outside RiskScoreProvider', () => {
+    const { result } = renderHook(() => useRiskScoreProvider());
+
+    expect(result.error).toBeDefined();
+    expect(result.error?.message).toBe('useRiskScoreProvider must be used within a RiskScoreProvider');
+  });
+
+  it('should return the correct context value when used within a RiskScoreProvider', () => {
+    const mockRiskScore = { score: 85 };
+
+    // Properly type the wrapper component
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <RiskScoreProvider>{children}</RiskScoreProvider>
+    );
+
+    const { result } = renderHook(() => useRiskScoreProvider(), { wrapper });
+
+    // Check if the context value is returned correctly
+    expect(result.current).toEqual(mockRiskScore);
+  });
+});
+===========================================================
+import { renderHook } from '@testing-library/react';
 import { useRiskScoreProvider } from './useRiskScoreProvider';
 import { RiskScoreProviderContext } from '../providers/RiskScoreProvider';
 import { ReactNode } from 'react';
-
+==========
 const RiskScoreProvider = ({ children }: { children: ReactNode }) => {
   const riskScoreContextValue = { score: 85 }; // Mocked context value
   return (
