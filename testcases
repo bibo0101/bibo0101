@@ -3,6 +3,94 @@ import RiskOverridePage from './RiskOverridePage';
 import { vi } from 'vitest';
 import { useSelector, useDispatch } from 'react-redux';
 
+// Mock the useSelector and useDispatch hooks
+vi.mock('react-redux', () => ({
+  useDispatch: vi.fn(),
+  useSelector: vi.fn(),
+}));
+
+describe('RiskOverridePage', () => {
+  let mockDispatch: vi.Mock;
+
+  beforeEach(() => {
+    // Reset the mock functions before each test
+    mockDispatch = vi.fn();
+    useDispatch.mockReturnValue(mockDispatch);
+    useSelector.mockReset();
+  });
+
+  it('should render the component correctly', () => {
+    // Mock Redux state in the correct order
+    useSelector.mockReturnValueOnce(false); // isFcrmReadOnly
+    useSelector.mockReturnValueOnce(false); // showErrorPanel
+    useSelector.mockReturnValueOnce(new Map()); // riskItems
+    useSelector.mockReturnValueOnce(false); // isPep
+    useSelector.mockReturnValueOnce(false); // isAnyOverrides
+    useSelector.mockReturnValueOnce({}); // attestationData
+
+    render(<RiskOverridePage />);
+
+    // Ensure AttestationPanel is rendered correctly
+    expect(screen.getByText(/attestation/i)).toBeInTheDocument();
+  });
+
+  it('should display RiskOverridePanel for riskItems', async () => {
+    // Mock riskItems and isFcrmReadOnly state
+    const mockRiskItems = new Map([
+      [1, [{ riskName: 'Risk 1' }, { riskName: 'Risk 2' }]],
+    ]);
+    
+    useSelector.mockReturnValueOnce(false); // isFcrmReadOnly
+    useSelector.mockReturnValueOnce(false); // showErrorPanel
+    useSelector.mockReturnValueOnce(mockRiskItems); // riskItems
+    useSelector.mockReturnValueOnce(false); // isPep
+    useSelector.mockReturnValueOnce(false); // isAnyOverrides
+    useSelector.mockReturnValueOnce({}); // attestationData
+
+    render(<RiskOverridePage />);
+
+    // Ensure that the RiskOverridePanel for 'Risk 1' and 'Risk 2' is rendered
+    await waitFor(() => expect(screen.getByText(/Risk 1/i)).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText(/Risk 2/i)).toBeInTheDocument());
+  });
+
+  it('should show ErrorPanel when there are invalid fields', () => {
+    // Mock Redux state for error panel visibility
+    useSelector.mockReturnValueOnce(false); // isFcrmReadOnly
+    useSelector.mockReturnValueOnce(true); // showErrorPanel
+    useSelector.mockReturnValueOnce(new Map()); // riskItems
+    useSelector.mockReturnValueOnce(false); // isPep
+    useSelector.mockReturnValueOnce(false); // isAnyOverrides
+    useSelector.mockReturnValueOnce({}); // attestationData
+
+    render(<RiskOverridePage />);
+
+    // Check if ErrorPanel is rendered when showErrorPanel is true
+    expect(screen.getByText(/error/i)).toBeInTheDocument();
+  });
+
+  it('should render PepJustificationPanel when isPep is true', () => {
+    // Mock Redux state for isPep condition
+    useSelector.mockReturnValueOnce(false); // isFcrmReadOnly
+    useSelector.mockReturnValueOnce(false); // showErrorPanel
+    useSelector.mockReturnValueOnce(new Map()); // riskItems
+    useSelector.mockReturnValueOnce(true); // isPep
+    useSelector.mockReturnValueOnce(false); // isAnyOverrides
+    useSelector.mockReturnValueOnce({}); // attestationData
+
+    render(<RiskOverridePage />);
+
+    // Ensure that PepJustificationPanel is rendered
+    expect(screen.getByText(/pep justification/i)).toBeInTheDocument();
+  });
+});
+
+=====================================================
+import { render, screen, waitFor } from '@testing-library/react';
+import RiskOverridePage from './RiskOverridePage';
+import { vi } from 'vitest';
+import { useSelector, useDispatch } from 'react-redux';
+
 // Mock react-redux hooks
 vi.mock('react-redux', () => ({
   useDispatch: vi.fn(),
