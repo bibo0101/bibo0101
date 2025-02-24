@@ -1,4 +1,80 @@
+import { render, screen } from '@testing-library/react';
+import { vi } from 'vitest';
+import { Provider } from 'react-redux';
+import { useForm, FormProvider } from 'react-hook-form';
+import configureStore from 'redux-mock-store';
+import SelectListener from './SelectListener';
+import { useSelector, useDispatch } from 'react-redux';
 
+// Mock store setup
+const mockStore = configureStore([]);
+const mockDispatch = vi.fn();
+
+// Mock Redux hooks
+vi.mock('react-redux', () => ({
+  useSelector: vi.fn(),
+  useDispatch: () => mockDispatch,
+}));
+
+// Mock useFormContext from RHF
+vi.mock('react-hook-form', () => ({
+  ...vi.importActual('react-hook-form'),
+  useFormContext: () => ({
+    watch: vi.fn(),
+    setError: vi.fn(),
+    clearErrors: vi.fn(),
+    setValue: vi.fn(),
+  }),
+}));
+
+describe('SelectListener Component', () => {
+  let store: any;
+
+  beforeEach(() => {
+    store = mockStore({
+      fcrmEntryField: { testField: 'existingValue' }, 
+      errorPanelState: { invalidFields: [] },
+    });
+    vi.clearAllMocks();
+  });
+
+  const renderComponent = () => {
+    const methods = useForm(); // RHF Form Context
+    return render(
+      <Provider store={store}>
+        <FormProvider {...methods}>
+          <SelectListener fieldName="testField" section="testSection" picklistType="testType" />
+        </FormProvider>
+      </Provider>
+    );
+  };
+
+  test('renders component correctly', () => {
+    renderComponent();
+    expect(screen.getByTestId('select-listener')).toBeInTheDocument();
+  });
+
+  test('sets initial states correctly', () => {
+    renderComponent();
+    expect(useSelector).toHaveBeenCalled();
+  });
+
+  test('updates previousData when fieldData changes', () => {
+    renderComponent();
+    expect(useSelector).toHaveBeenCalledWith(expect.any(Function));
+  });
+
+  test('handles form validation errors', () => {
+    (useSelector as vi.Mock).mockReturnValueOnce({
+      invalidFields: ['testField'],
+    });
+
+    renderComponent();
+
+    expect(mockDispatch).toHaveBeenCalled();
+  });
+});
+========================
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { setRiskItems } from "../store/actions"; // Import Redux action
 import BooleanListener from "./BooleanListener"; // Import the component
