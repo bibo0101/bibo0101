@@ -1,3 +1,75 @@
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import SelectListener from './SelectListener'; // Adjust the import based on your file structure
+
+const mockStore = configureStore([]);
+
+describe('SelectListener Component', () => {
+  let store;
+
+  beforeEach(() => {
+    store = mockStore({
+      // Mock your Redux state here
+      // Example: fcrmEntryField: { /* your mock data */ },
+      // invalidFields: { /* your mock data */ },
+    });
+  });
+
+  test('renders without crashing', () => {
+    render(
+      <Provider store={store}>
+        <SelectListener fieldName="testField" section="testSection" picklistType="testType" />
+      </Provider>
+    );
+
+    // Check if the component renders correctly
+    expect(screen.getByText(/some text/i)).toBeInTheDocument(); // Adjust based on your component
+  });
+
+  test('initializes with correct data', () => {
+    // Set up your mock state to include initial data
+    store = mockStore({
+      fcrmEntryField: {
+        testField: 'initialValue',
+      },
+      // other state slices
+    });
+
+    render(
+      <Provider store={store}>
+        <SelectListener fieldName="testField" section="testSection" picklistType="testType" />
+      </Provider>
+    );
+
+    // Check if the initial data is set correctly
+    expect(screen.getByDisplayValue('initialValue')).toBeInTheDocument(); // Adjust based on your component
+  });
+
+  test('handles errors correctly', () => {
+    // Set up your mock state to include error data
+    store = mockStore({
+      invalidFields: {
+        testField: true,
+      },
+      // other state slices
+    });
+
+    render(
+      <Provider store={store}>
+        <SelectListener fieldName="testField" section="testSection" picklistType="testType" />
+      </Provider>
+    );
+
+    // Simulate an error
+    fireEvent.change(screen.getByRole('combobox'), { target: { value: '' } }); // Adjust based on your component
+    expect(screen.getByText(/error message/i)).toBeInTheDocument(); // Adjust based on your component
+  });
+
+  // Add more tests as needed
+});
+===================================
 import { render, screen } from '@testing-library/react';
 import { vi } from 'vitest';
 import { Provider } from 'react-redux';
