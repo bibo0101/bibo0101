@@ -1,4 +1,34 @@
 import { renderHook } from '@testing-library/react';
+import { useRiskScoreProvider } from './useRiskScoreProvider';
+import { RiskScoreProviderContext } from '../providers/RiskScoreProvider';
+import { ReactNode } from 'react';
+
+const RiskScoreProvider = ({ children }: { children: ReactNode }) => {
+  const riskScoreContextValue = { score: 85 }; // Mocked context value
+  return (
+    <RiskScoreProviderContext.Provider value={riskScoreContextValue}>
+      {children}
+    </RiskScoreProviderContext.Provider>
+  );
+};
+
+describe('useRiskScoreProvider', () => {
+  it('should throw an error if used outside RiskScoreProvider', () => {
+    expect(() => {
+      renderHook(() => useRiskScoreProvider());
+    }).toThrow('useRiskScoreProvider must be used within a RiskScoreProvider');
+  });
+
+  it('should return the correct context value when used within a RiskScoreProvider', () => {
+    const { result } = renderHook(() => useRiskScoreProvider(), {
+      wrapper: RiskScoreProvider, // Wrap with the provider
+    });
+
+    expect(result.current).toEqual({ score: 85 }); // Ensure correct data is returned
+  });
+});
+====================================================
+import { renderHook } from '@testing-library/react';
 import { useApiProvider } from './useApiProvider'; // Adjust the import based on your file structure
 import { ApiProviderContext } from '../providers/ApiProvider'; // Adjust the import based on your file structure
 import { ReactNode } from 'react';
