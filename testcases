@@ -1,4 +1,41 @@
 import { render, screen, waitFor } from '@testing-library/react';
+import RiskOverridePage from './RiskOverridePage';
+import { vi } from 'vitest';
+import { useSelector, useDispatch } from 'react-redux';
+
+// Mock react-redux hooks
+vi.mock('react-redux', () => ({
+  useDispatch: vi.fn(),
+  useSelector: vi.fn(),
+}));
+
+describe('RiskOverridePage', () => {
+  const mockDispatch = vi.fn();
+
+  beforeEach(() => {
+    useSelector.mockReset();
+    useDispatch.mockReturnValue(mockDispatch);
+  });
+
+  it('should render the component correctly', () => {
+    // Ensure riskScore is included in the mock Redux state
+    useSelector
+      .mockReturnValueOnce(false) // isFcrmReadOnly
+      .mockReturnValueOnce(false) // showErrorPanel
+      .mockReturnValueOnce(new Map()) // riskItems
+      .mockReturnValueOnce(false) // isPep
+      .mockReturnValueOnce(false) // isAnyOverrides
+      .mockReturnValueOnce({}) // attestationData
+      .mockReturnValueOnce({ baseRiskScore: 85, overriddenRiskScore: 90 }); // riskScore mock
+
+    render(<RiskOverridePage />);
+
+    expect(screen.getByText(/Attestation/i)).toBeInTheDocument();
+  });
+});
+
+========================================================
+import { render, screen, waitFor } from '@testing-library/react';
 import RiskOverridePage from './RiskOverridePage'; // Ensure correct import
 import { vi } from 'vitest';
 import { useSelector, useDispatch } from 'react-redux';
