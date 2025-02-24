@@ -1,3 +1,32 @@
+import { renderHook } from '@testing-library/react';
+import { useApiProvider } from './useApiProvider'; // Adjust the import based on your file structure
+import { ApiProviderContext } from '../providers/ApiProvider'; // Adjust the import based on your file structure
+import { ReactNode } from 'react';
+
+const ApiProvider = ({ children }: { children: ReactNode }) => {
+  const apiContextValue = { someApiData: 'test' };
+  return (
+    <ApiProviderContext.Provider value={apiContextValue}>
+      {children}
+    </ApiProviderContext.Provider>
+  );
+};
+
+describe('useApiProvider', () => {
+  it('should throw an error if used outside ApiProvider', () => {
+    const { result } = renderHook(() => useApiProvider());
+
+    expect(result.error?.message).toBe('useApiProvider must be used within an ApiProvider');
+  });
+
+  it('should return the correct context value when used within an ApiProvider', () => {
+    const { result } = renderHook(() => useApiProvider(), {
+      wrapper: ApiProvider,
+    });
+
+    expect(result.current).toEqual({ someApiData: 'test' });
+  });
+});=========================================
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
