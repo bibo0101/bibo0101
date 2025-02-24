@@ -1,3 +1,77 @@
+import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import ConfirmationPage from './ConfirmationPage';
+import generalDataReducer from '../../redux/slices/generalDataSlice';
+
+const mockStore = (partyData) => {
+  return configureStore({
+    reducer: {
+      generalData: () => ({
+        partyData,
+      }),
+    },
+  });
+};
+
+describe('ConfirmationPage', () => {
+  it('renders the success alert with the party name', () => {
+    const partyData = { name: 'Test Party' };
+    const store = mockStore(partyData);
+
+    render(
+      <Provider store={store}>
+        <ConfirmationPage />
+      </Provider>
+    );
+
+    expect(screen.getByText(/Test Party/i)).toBeInTheDocument(); // Updated check
+    expect(screen.getByRole('alert')).toHaveClass('bp4-alert-success');
+  });
+
+  it('displays next steps correctly', () => {
+    const partyData = { name: 'Test Party' };
+    const store = mockStore(partyData);
+
+    render(
+      <Provider store={store}>
+        <ConfirmationPage />
+      </Provider>
+    );
+
+    expect(screen.getByText(/Next steps:/i)).toBeInTheDocument();
+    expect(screen.getByText(/Override approval required/i)).toBeInTheDocument();
+    expect(screen.getByText(/Refer to Private Bank CDD Procedures/i)).toBeInTheDocument();
+    expect(screen.getByText(/Enhanced Due Diligence/i)).toBeInTheDocument();
+  });
+
+  it('renders success icon correctly', () => {
+    const partyData = { name: 'Test Party' };
+    const store = mockStore(partyData);
+
+    render(
+      <Provider store={store}>
+        <ConfirmationPage />
+      </Provider>
+    );
+
+    const icon = screen.getByRole('img', { hidden: true }); // Updated to check hidden images too
+    expect(icon).toHaveClass('bp4-icon-success');
+  });
+
+  it('does not render alert if party data is not available', () => {
+    const store = mockStore(null);
+
+    render(
+      <Provider store={store}>
+        <ConfirmationPage />
+      </Provider>
+    );
+
+    expect(screen.queryByRole('alert')).toBeNull();
+  });
+});
+===============================================
 import { render, screen, waitFor } from '@testing-library/react';
 import RiskOverridePage from './RiskOverridePage';
 import { vi } from 'vitest';
