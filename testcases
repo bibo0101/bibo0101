@@ -1,1 +1,106 @@
+import { render, screen, waitFor } from '@testing-library/react';
+import RiskOverridePage from './RiskOverridePage'; // Ensure correct import
+import { vi } from 'vitest';
+import { useSelector, useDispatch } from 'react-redux';
+
+// Mock the useSelector and useDispatch hooks
+vi.mock('react-redux', () => ({
+  useDispatch: vi.fn(),
+  useSelector: vi.fn(),
+}));
+
+describe('RiskOverridePage', () => {
+  const mockDispatch = vi.fn();
+
+  beforeEach(() => {
+    // Reset the mock functions before each test
+    useSelector.mockReset();
+    useDispatch.mockReturnValue(mockDispatch); // Ensure dispatch is always a function
+  });
+
+  it('should render the component correctly', () => {
+    useSelector.mockImplementation((selector) => {
+      switch (selector.name) {
+        case 'getIsFcrmReadOnly':
+          return false;
+        case 'getInvalidFieldsErrorPanelState':
+          return false;
+        case 'getRiskItems':
+          return new Map();
+        case 'isPep':
+          return false;
+        case 'getAreRisksOverridden':
+          return false;
+        case 'attestationData':
+          return {};
+        default:
+          return undefined;
+      }
+    });
+
+    render(<RiskOverridePage />);
+
+    // Ensure the attestation panel is rendered
+    expect(screen.getByTestId('attestation-panel')).toBeInTheDocument();
+  });
+
+  it('should display RiskOverridePanel for riskItems', async () => {
+    const mockRiskItems = new Map([
+      [1, [{ riskName: 'Risk 1' }, { riskName: 'Risk 2' }]],
+    ]);
+
+    useSelector.mockImplementation((selector) => {
+      switch (selector.name) {
+        case 'getIsFcrmReadOnly':
+          return false;
+        case 'getInvalidFieldsErrorPanelState':
+          return false;
+        case 'getRiskItems':
+          return mockRiskItems;
+        case 'isPep':
+          return false;
+        case 'getAreRisksOverridden':
+          return false;
+        case 'attestationData':
+          return {};
+        default:
+          return undefined;
+      }
+    });
+
+    render(<RiskOverridePage />);
+
+    // Ensure that the RiskOverridePanel for 'Risk 1' and 'Risk 2' is rendered
+    await waitFor(() => expect(screen.getByText('Risk 1')).toBeInTheDocument());
+    await waitFor(() => expect(screen.getByText('Risk 2')).toBeInTheDocument());
+  });
+
+  it('should show ErrorPanel when there are invalid fields', () => {
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'getInvalidFieldsErrorPanelState') {
+        return true;
+      }
+      return false;
+    });
+
+    render(<RiskOverridePage />);
+
+    // Check if ErrorPanel is rendered when showErrorPanel is true
+    expect(screen.getByTestId('error-panel')).toBeInTheDocument();
+  });
+
+  it('should render PepJustificationPanel when isPep is true', () => {
+    useSelector.mockImplementation((selector) => {
+      if (selector.name === 'isPep') {
+        return true;
+      }
+      return false;
+    });
+
+    render(<RiskOverridePage />);
+
+    // Ensure that PepJustificationPanel is rendered
+    expect(screen.getByTestId('pep-justification-panel')).toBeInTheDocument();
+  });
+});
 
