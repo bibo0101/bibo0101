@@ -1,3 +1,73 @@
+import React, { useEffect, useState, useCallback } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+
+import RiskOverridePanel from '../components/RiskOverridePanel/RiskOverridePanel';
+import AttestationPanel from '../components/AttestationPanel/AttestationPanel';
+import PepJustificationPanel from '../components/RiskOverridePanel/PepJustificationPanel';
+import ErrorPanel from '../components/ErrorPanel/ErrorPanel';
+
+import { getAreRisksOverridden, getRiskItems } from 'src/redux/selectors/riskDataSelectors';
+import { getIsFcrmReadOnly, getInvalidFieldsErrorPanelState } from '../../redux/selectors/generalDataSelectors';
+
+import { AttestationData, ReduxStore } from 'src/interfaces/ReduxStore';
+import { OverridePageValidationStatus } from 'src/redux/storeTypes';
+import { initialiseOverrideValidationStatus } from 'src/redux/slices/overrideValidationStatusSlice';
+import { checkRiskItemValidationStatus } from '../helpers/validationStatusHelpers';
+
+const RiskOverridePage = () => {
+  const dispatch = useDispatch();
+  
+  const isFcrmReadOnly = useSelector(getIsFcrmReadOnly);
+  const showErrorPanel = useSelector(getInvalidFieldsErrorPanelState);
+  const riskItems = useSelector(getRiskItems);
+  const isPep = useSelector((store: ReduxStore) => store.isPep);
+  const isAnyOverrides = useSelector(getAreRisksOverridden);
+  const attestationData: AttestationData = useSelector((state: ReduxStore) => state.attestationData);
+
+  const [overridePanels, setOverridePanels] = useState<React.ReactElement[]>([]);
+
+  const getOverridePanels = useCallback(() => {
+    if (!riskItems) return;
+
+    const newOverridePanels: React.ReactElement[] = [];
+    const riskOverrideValidationStatus: OverridePageValidationStatus = {};
+
+    riskItems.forEach((riskItemList, riskLevel) => {
+      if (riskLevel === 1) {
+        riskItemList.forEach((riskItem) => {
+          riskOverrideValidationStatus[riskItem.riskName] = checkRiskItemValidationStatus(riskItem);
+          newOverridePanels.push(
+            <RiskOverridePanel
+              key={`${riskItem.riskName}-risk-override-panel`}
+              riskLevel={riskLevel}
+              readOnly={isFcrmReadOnly}
+              riskItem={riskItem}
+              riskOverrideValidationStatus={riskOverrideValidationStatus[riskItem.riskName]}
+            />
+          );
+        });
+      }
+    });
+
+    setOverridePanels(newOverridePanels);
+  }, [riskItems, isFcrmReadOnly]);
+
+  useEffect(() => {
+    getOverridePanels();
+  }, [getOverridePanels]);
+
+  return (
+    <div>
+      {showErrorPanel && <ErrorPanel />}
+      {overridePanels}
+      <AttestationPanel data={attestationData} />
+      {isPep && <PepJustificationPanel />}
+    </div>
+  );
+};
+
+export default RiskOverridePage;
+======================================================
 import { render, screen, waitFor } from '@testing-library/react';
 import { RiskScoreProviderTestWrapper } from './RiskScoreProviderTestWrapper'; // Adjust path
 import { useRiskScoreProvider } from '../../hooks/useRiskScoreProvider';
