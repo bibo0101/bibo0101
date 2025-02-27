@@ -1,5 +1,125 @@
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
+import configureStore from 'redux-mock-store';
+import RiskOverridePage from './RiskOverridePage';
+import { initialiseOverrideValidationStatus } from 'src/redux/slices/overrideValidationStatusSlice';
+import { useDispatch } from 'react-redux';
+import { vi } from 'vitest';
+
+const mockStore = configureStore([]);
+
+vi.mock('react-redux', () => ({
+  useDispatch: vi.fn(),
+  useSelector: vi.fn(),
+}));
+
+describe('RiskOverridePage', () => {
+  let store: any;
+  let dispatch: any;
+
+  beforeEach(() => {
+    dispatch = vi.fn();
+    (useDispatch as jest.Mock).mockReturnValue(dispatch);
+    
+    store = mockStore({
+      riskData: {
+        riskItems: {},
+        areRisksOverridden: false,
+        isPep: false,
+      },
+      generalData: {
+        isFcrmReadOnly: false,
+        invalidFields: false,
+      },
+      attestations: {
+        attestation: false,
+        overrideCom: false,
+      },
+    });
+
+    store.dispatch = dispatch; // Ensure dispatch is correctly mocked
+  });
+
+  test('renders without crashing', () => {
+    render(
+      <Provider store={store}>
+        <RiskOverridePage />
+      </Provider>
+    );
+    expect(screen.getByText(/Attestation Panel/i)).toBeInTheDocument();
+  });
+
+  test('displays ErrorPanel when showErrorPanel is true', () => {
+    const newStore = mockStore({
+      ...store.getState(),
+      generalData: {
+        ...store.getState().generalData,
+        invalidFields: true,
+      },
+    });
+
+    render(
+      <Provider store={newStore}>
+        <RiskOverridePage />
+      </Provider>
+    );
+
+    expect(screen.getByText(/Error Panel/i)).toBeInTheDocument();
+  });
+
+  test('displays RiskOverridePanel for each risk item', () => {
+    const riskItems = new Map();
+    riskItems.set('level1', [{ riskName: 'Risk 1' }, { riskName: 'Risk 2' }]);
+
+    const newStore = mockStore({
+      ...store.getState(),
+      riskData: {
+        ...store.getState().riskData,
+        riskItems: Object.fromEntries(riskItems), // Convert Map to Object
+      },
+    });
+
+    render(
+      <Provider store={newStore}>
+        <RiskOverridePage />
+      </Provider>
+    );
+
+    expect(screen.getAllByText(/Risk/i)).toHaveLength(2);
+  });
+
+  test('displays PepJustificationPanel when isPep is true', () => {
+    const newStore = mockStore({
+      ...store.getState(),
+      riskData: {
+        ...store.getState().riskData,
+        isPep: true,
+      },
+    });
+
+    render(
+      <Provider store={newStore}>
+        <RiskOverridePage />
+      </Provider>
+    );
+
+    expect(screen.getByText(/Pep Justification Panel/i)).toBeInTheDocument();
+  });
+
+  test('dispatches initialiseOverrideValidationStatus on mount', () => {
+    render(
+      <Provider store={store}>
+        <RiskOverridePage />
+      </Provider>
+    );
+
+    expect(dispatch).toHaveBeenCalledWith(initialiseOverrideValidationStatus(expect.any(Object)));
+  });
+});
+
+=============================================
+import { render, screen } from '@testing-library/react';
+import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import ConfirmationPage from './ConfirmationPage';
 import generalDataReducer from '../../redux/slices/generalDataSlice';
