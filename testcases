@@ -1,3 +1,52 @@
+import { render, waitFor } from '@testing-library/react';
+
+it('should update progress when FCRM status is "Completed"', async () => {
+  useSelector.mockReturnValue('Completed');
+
+  const { getByText } = render(<ProgressBar />);
+
+  // Wait for the progress state to update
+  await waitFor(() => {
+    expect(getByText('Complete')).toBeInTheDocument();
+  });
+});
+
+==================================
+import { render } from '@testing-library/react';
+import { vi } from 'vitest';
+import React from 'react';
+import { useSelector } from 'react-redux';
+import ProgressBar from '../ProgressBar'; // Adjust import as needed
+
+vi.mock('react-redux', () => ({
+  useSelector: vi.fn(),
+}));
+
+vi.mock('react-router-dom', () => ({
+  useLocation: vi.fn().mockReturnValue({ pathname: '/mainForm' }),
+}));
+
+describe('ProgressBar Component', () => {
+  it('should call setProgress with "Complete" states when FCRM status is "Completed"', () => {
+    // Mock FCRM status as "Completed"
+    useSelector.mockReturnValue('Completed');
+
+    // Mock useState to spy on setProgress
+    const mockSetProgress = vi.fn();
+    vi.spyOn(React, 'useState').mockReturnValue([[], mockSetProgress]);
+
+    render(<ProgressBar />);
+
+    // Assert that setProgress is called with all "Complete" states
+    expect(mockSetProgress).toHaveBeenCalledWith([
+      { name: 'Risk Questions', state: 'Complete' },
+      { name: 'Attestation', state: 'Complete' },
+      { name: 'Attestation Summary', state: 'Complete' },
+    ]);
+  });
+});
+
+==================
 import { render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
